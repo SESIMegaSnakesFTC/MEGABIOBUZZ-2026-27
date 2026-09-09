@@ -19,12 +19,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class TeleOp_TRACKINGLIMELIGHT extends LinearOpMode {
 
     // ==> TRACKING LIMELIGHT <==
+
+    //
     private enum ACTIONS {LEFT, RIGHT, NONE}
     private ACTIONS acto = ACTIONS.NONE;
-    private  boolean ModoTracking = false;
+    private boolean ModoTracking = false;
     private boolean lastApressed = false;
-    private double Kp = 0.02;
-    private double SpeedProcura = 0.14;
+    private final double Kp = 0.02;
+    private final double SpeedProcura = 0.14;
 
 
     // Chassi

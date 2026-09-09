@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import java.util.List;
 
 /**
  * Código de Teleoperado Completo para a equipe MEGA.
@@ -26,13 +29,13 @@ public class Teleop extends LinearOpMode {
     private Servo servoLeft, servoRight;
 
     // --- CONFIGURAÇÃO DE COMPENSAÇÃO MANUAL (BIAS) ---
-    private double FATOR_COMPENSACAO_STRAFE = 0.8;
+    private final double FATOR_COMPENSACAO_STRAFE = 0.80;
 
     // --- CONFIGURAÇÃO DOS SERVOS ---
-    private double posZeroEsquerda = 0.0;
-    private double posZeroDireita = 0.1754;
-    private double SERVO_ATIVO = 0.48; // Aproximadamente 70 graus
-    private double TEMPO_ESPERA = 1.92; // 2 segundos conforme pedido
+    private final double posZeroEsquerda = 0.00;
+    private final double posZeroDireita = 0.18;
+    private final double SERVO_ATIVO = 0.48; // Aproximadamente 70 graus
+    private final double TEMPO_ESPERA = 1.92; // 2 segundos conforme pedido
 
     @Override
     public void runOpMode() {
@@ -67,31 +70,42 @@ public class Teleop extends LinearOpMode {
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-
+        // --- OTIMIZAÇÃO  --> Leitura de Inputs ---
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
 
         waitForStart();
-
-        // Salvamos a posição atual como o "Zero"
-        posZeroEsquerda = servoLeft.getPosition();
-        posZeroDireita = servoRight.getPosition();
 
         // Variáveis de Estado
         boolean lastRT = false;
         boolean lastLT = false;
         double shooterPower = 0;
+        boolean hasRumbled = false;
         ElapsedTime timer = new ElapsedTime();
+
+        // Variáveis para Otimização de Escrita
+        double lastFL = 0, lastBL = 0, lastFR = 0, lastBR = 0;
+        double lastShooterPower = 0, lastSpindexerPower = 0, lastFeederPower = 0;
+        double lastPosL = -1, lastPosR = -1;
 
         while (opModeIsActive()) {
 
-            // --- MOVIMENTAÇÃO (Gamepad 1) ---
-            double eixoY = -gamepad1.left_stick_y;
-            double eixoX = gamepad1.left_stick_x;
-            double rotacao = gamepad1.right_stick_x;
+            // --- 1. ENTRADA E MOVIMENTAÇÃO (Gamepad 1) ---
+            double eixoY   = Range.clip(-gamepad1.left_stick_y, -1.0, 1.0);
+            double eixoX   = Range.clip(gamepad1.left_stick_x, -1.0, 1.0);
+            double rotacao = Range.clip(gamepad1.right_stick_x, -1.0, 1.0);
 
-            double multEsq = 1.0;
-            double multDir = 1.0;
-            if (eixoX < -0.1) multDir = 1.0 + (Math.abs(eixoX) * FATOR_COMPENSACAO_STRAFE);
-            else if (eixoX > 0.1) multEsq = 1.0 + (Math.abs(eixoX) * FATOR_COMPENSACAO_STRAFE);
+            // Deadzone para evitar drift ;(
+            if (Math.abs(eixoY) < 0.01)   eixoY = 0;
+            if (Math.abs(eixoX) < 0.01)   eixoX = 0;
+            if (Math.abs(rotacao) < 0.01) rotacao = 0;
+
+            // Lógica de Compensação de Strafe
+            double compensacao = Math.abs(eixoX) * FATOR_COMPENSACAO_STRAFE;
+            double multEsq = (eixoX > 0.1)  ? 1.0 + compensacao : 1.0;
+            double multDir = (eixoX < -0.1) ? 1.0 + compensacao : 1.0;
 
             double fl = (eixoY + eixoX + rotacao) * multEsq;
             double bl = (eixoY - eixoX + rotacao) * multEsq;
@@ -103,77 +117,85 @@ public class Teleop extends LinearOpMode {
                 fl /= max; bl /= max; fr /= max; br /= max;
             }
 
-            leftFront.setPower(fl);
-            leftBack.setPower(bl);
-            rightFront.setPower(fr);
-            rightBack.setPower(br);
+            // Otimização --> Envio de potência ao Chassi
+            if (Math.abs(fl - lastFL) > 0.01) { leftFront.setPower(fl);  lastFL = fl; }
+            if (Math.abs(bl - lastBL) > 0.01) { leftBack.setPower(bl);   lastBL = bl; }
+            if (Math.abs(fr - lastFR) > 0.01) { rightFront.setPower(fr); lastFR = fr; }
+            if (Math.abs(br - lastBR) > 0.01) { rightBack.setPower(br);  lastBR = br; }
 
 
-            // --- MECANISMOS (Gamepad 2) ---
-            boolean currentRT = gamepad2.right_trigger > 0.5;
-            boolean currentLT = gamepad2.left_trigger > 0.5;
+            // ---  LOGICA DO SHOOTER (Gamepad 2) ---
+            boolean triggerRT = gamepad2.right_trigger > 0.5;
+            boolean triggerLT = gamepad2.left_trigger > 0.5;
 
-            // Toggle RT (Lado Direito / Negativo)
-            if (currentRT && !lastRT) {
-                if (shooterPower == -1.0) {
-                    shooterPower = 0;
-                } else {
-                    shooterPower = -1.0;
-                    timer.reset();
-                }
+            // Toggles para ligar/desligar o Shooter
+            if (triggerRT && !lastRT) {
+                shooterPower = (shooterPower == -1.0) ? 0 : -1.0;
+                timer.reset();
+                hasRumbled = false;
             }
-            // Toggle LT (Lado Esquerdo / Positivo)
-            if (currentLT && !lastLT) {
-                if (shooterPower == 1.0) {
-                    shooterPower = 0;
-                } else {
-                    shooterPower = 1.0;
-                    timer.reset();
-                }
+            if (triggerLT && !lastLT) {
+                shooterPower = (shooterPower == 1.0) ? 0 : 1.0;
+                timer.reset();
+                hasRumbled = false;
             }
-            lastRT = currentRT;
-            lastLT = currentLT;
+            lastRT = triggerRT;
+            lastLT = triggerLT;
 
-            // O Shooter liga imediatamente
-            shooter.setPower(shooterPower);
-
-            // --- LÓGICA DE SINCRONIZAÇÃO (Spindexer + Servo) ---
-            if (shooterPower != 0) {
-                // Só liga Spindexer e Servo SE o timer passar de 2.0s
-                if (timer.seconds() >= TEMPO_ESPERA) {
-                    spindexer.setPower(shooterPower * 0.8);
-                    if (shooterPower == 1.0) { // Lado LT
-                        servoLeft.setPosition(Range.clip(posZeroEsquerda + SERVO_ATIVO, 0.0, 1.0));
-                        servoRight.setPosition(posZeroDireita);
-                    } else { // Lado RT
-                        // Invertendo o movimento através da subtração para girar ao contrário
-                        servoRight.setPosition(Range.clip(posZeroDireita + SERVO_ATIVO, 0.0, 1.0));
-                        servoLeft.setPosition(posZeroEsquerda);
-                    }
-                } else {
-                    // Durante a aceleração (0 a 2.0s), mantém spindexer e servos no reset
-                    spindexer.setPower(0);
-                    servoLeft.setPosition(posZeroEsquerda);
-                    servoRight.setPosition(posZeroDireita);
-                }
-            } else {
-                // Desligado -> Reset imediato para o Zero Manual
-                spindexer.setPower(0);
-                servoLeft.setPosition(posZeroEsquerda);
-                servoRight.setPosition(posZeroDireita);
+            if (Math.abs(shooterPower - lastShooterPower) > 0.01) {
+                shooter.setPower(shooterPower);
+                lastShooterPower = shooterPower;
             }
 
-            // FEEDER
-            if (gamepad2.right_bumper) feeder.setPower(1.0);
-            else if (gamepad2.left_bumper) feeder.setPower(-1.0);
-            else feeder.setPower(0);
+            // ---  SINCRONIZAÇÃO (Spindexer + Servo) ---
+            // Estados auxiliares para reduzir aninhamento
+            boolean isShooting = (shooterPower != 0);
+            boolean isReady    = (timer.seconds() >= TEMPO_ESPERA);
 
-            telemetry.addData("Shooter", shooterPower);
-            telemetry.addData("Timer", "%.2f s", timer.seconds());
-            telemetry.addData("Status", (timer.seconds() < TEMPO_ESPERA && shooterPower != 0) ? "ACELERANDO..." : "PRONTO");
-            telemetry.addData("Servo Esq Pos", servoLeft.getPosition());
-            telemetry.addData("Servo Dir Pos", servoRight.getPosition());
-            telemetry.update();
+            double targetSpindexer = 0;
+            double targetPosL      = posZeroEsquerda;
+            double targetPosR      = posZeroDireita;
+
+            // Se não estiver atirando, reseta rumble e ignora o resto da lógica de disparo
+            if (!isShooting) {
+                hasRumbled = false;
+            }
+            // Se estiver atirando e pronto (Timer OK)
+            else if (isReady) {
+                // Feedback tátil único
+                if (!hasRumbled) {
+                    gamepad2.rumble(500);
+                    hasRumbled = true;
+                }
+
+                targetSpindexer = shooterPower * 0.8;
+                targetPosL = (shooterPower == 1.0) ? Range.clip(posZeroEsquerda + SERVO_ATIVO, 0.0, 1.0) : posZeroEsquerda;
+                targetPosR = (shooterPower == -1.0) ? Range.clip(posZeroDireita + SERVO_ATIVO, 0.0, 1.0) : posZeroDireita;
+            }
+
+            // Aplicar Otimizações de Escrita nos Mecanismos
+            if (Math.abs(targetSpindexer - lastSpindexerPower) > 0.01) {
+                spindexer.setPower(targetSpindexer);
+                lastSpindexerPower = targetSpindexer;
+            }
+            if (Math.abs(targetPosL - lastPosL) > 0.005) {
+                servoLeft.setPosition(targetPosL);
+                lastPosL = targetPosL;
+            }
+            if (Math.abs(targetPosR - lastPosR) > 0.005) {
+                servoRight.setPosition(targetPosR);
+                lastPosR = targetPosR;
+            }
+
+            // ---  FEEDER ---
+            double feederPower = 0;
+            if (gamepad2.right_bumper)      feederPower = 1.0;
+            else if (gamepad2.left_bumper) feederPower = -1.0;
+
+            if (Math.abs(feederPower - lastFeederPower) > 0.01) {
+                feeder.setPower(feederPower);
+                lastFeederPower = feederPower;
+            }
         }
         //Evitar conflito quando mudar para o Autônomo
         servoLeft.setPosition(posZeroEsquerda);
