@@ -41,7 +41,7 @@ public class TeleOp_TRACKINGLIMELIGHT extends LinearOpMode {
     // --- CONFIGURAÇÃO DE COMPENSAÇÃO MANUAL (BIAS) ---
     // Ajuste este valor conforme seus testes para o robô andar reto.
     // Ex: 0.1, 0.2, 0.3... quanto maior, mais força o lado oposto ganha.
-    private double STRAFE_BIAS_FACTOR = 0.8;
+    private final double STRAFE_BIAS_FACTOR = 0.8;
 
 
     @Override
@@ -176,7 +176,7 @@ public class TeleOp_TRACKINGLIMELIGHT extends LinearOpMode {
             }
 
 
-            // Telemetria para ajudar nos testes
+            // Telemetria
             telemetry.addData("Angulo", angulo);
             telemetry.update();
 
@@ -258,16 +258,13 @@ public class TeleOp_TRACKINGLIMELIGHT extends LinearOpMode {
 
             switch (acto){
 
-                case LEFT:
+                case LEFT: // por não ter break ele executa o debaixo
+                case NONE:
                     limelightMotor.setPower(SpeedProcura);
                     break;
 
                 case RIGHT:
                     limelightMotor.setPower(-SpeedProcura);
-                    break;
-
-                case NONE:
-                    limelightMotor.setPower(SpeedProcura);
                     break;
             }
         }
