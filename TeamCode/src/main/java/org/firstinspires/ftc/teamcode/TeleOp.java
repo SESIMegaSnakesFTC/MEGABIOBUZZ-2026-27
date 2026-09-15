@@ -8,8 +8,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.List;
 
-public class TeleOpBasic extends LinearOpMode {
 
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOpBase", group = "TeleOp")
+public class TeleOp extends LinearOpMode {
 
 
     private DcMotor LeftBack, LeftFront, RightFront, RightBack;
@@ -31,7 +32,7 @@ public class TeleOpBasic extends LinearOpMode {
     float RampCatchPos = 0.3f, RampClosedPos = 0.0f;
 
 
-
+    @Override
     public void runOpMode(){
 
         INIT();
@@ -78,15 +79,11 @@ public class TeleOpBasic extends LinearOpMode {
                 FeederServo.setPosition(FeederCatchPos);
                 L_shooter.setPower(1.0);R_shooter.setPower(1.0);
             }
-
-
-
-
-
         }
 
         rampServo.setPosition(RampClosedPos);
         FeederServo.setPosition(ClosedPos);
+
 
     }
 
