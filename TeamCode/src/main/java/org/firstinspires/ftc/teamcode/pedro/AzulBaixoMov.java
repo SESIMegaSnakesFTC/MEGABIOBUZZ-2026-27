@@ -44,6 +44,7 @@ class pathAzulBaixo {
         return line(point4, point5).constant(point5);
     }
 }
+
 @Autonomous(name = "AzulBaixo", group = "Auto")
 public class AzulBaixo extends LinearOpMode {
 
