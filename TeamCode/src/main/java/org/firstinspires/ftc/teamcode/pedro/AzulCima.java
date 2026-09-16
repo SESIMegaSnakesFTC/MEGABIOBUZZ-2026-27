@@ -100,7 +100,7 @@ public class AzulCima extends LinearOpMode {
     private void seguirPath(Path path) {
         follower.follow(path);
         ElapsedTime timer = new ElapsedTime();
-        while (opModeIsActive() && follower.isBusy() && timer.seconds() > 4) {
+        while (opModeIsActive() && follower.isBusy() && timer.seconds() < 5) {
             follower.update();
             
         }

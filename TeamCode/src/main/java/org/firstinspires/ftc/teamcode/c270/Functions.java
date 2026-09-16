@@ -12,25 +12,25 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection; // IMPORTA
 import java.util.List;
 
 
-@TeleOp(name = "Visão C270", group = "Visão")
+@TeleOp(name = "C270", group = "Visão")
 public class Functions extends LinearOpMode {
 
-    // VisionPortal: É o que gerencia a conexão com a câmera USB
+    // VisionPortal: gerencia a conexão com a câmera USB
     private VisionPortal visionPortal;
 
-    // AprilTagProcessor: É o "cérebro" que procura as tags na imagem
+    // AprilTagProcessor: É o que procura as tags na imagem
     private AprilTagProcessor aprilTag;
 
     @Override
     public void runOpMode() {
         
         // 1. O processador de AprilTags.
-        // Ele vem configurado por padrão para a família 36h11 (usada no FTC)
+        // Ele vem configurado por padrão para a família 36h11
         aprilTag = new AprilTagProcessor.Builder()
                 .build();
 
         // 2. O portal da visão.
-        // Aqui dizemos qual câmera usar e qual processador deve rodar nela.
+        // Qual câmera usar e qual processador deve rodar nela.
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .addProcessor(aprilTag)
@@ -41,7 +41,7 @@ public class Functions extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             
-            // 3. Pegamos a lista de todas as tags que a câmera está vendo agora
+            // 3. Pegando a lista de todas as tags que a câmera está vendo agora
             List<AprilTagDetection> detections = aprilTag.getDetections();
 
             // 4. Vamos olhar cada detecção encontrada

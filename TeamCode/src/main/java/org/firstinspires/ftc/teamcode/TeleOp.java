@@ -23,13 +23,17 @@ public class TeleOp extends LinearOpMode {
     boolean LastLT = false;
 
     //Servos
-    private Servo rampServo, FeederServo;
+    private Servo rampServo, FeederServo, TurretServo;
 
-    //Feeder Servo
+        //Feeder Servo
     float InitPos = -0.50f, ClosedPos = 0.30f, FeederCatchPos = 0.20f; //MUDAR DEPOIS
 
-    //Ramp Servo
+        //Ramp Servo
     float RampCatchPos = 0.3f, RampClosedPos = 0.0f;
+
+        //Turret Servo
+    float Minpos = -0.40f, MaxPos = 0.40f; //MUDAR DEPOIS
+
 
 
     @Override
@@ -115,8 +119,9 @@ public class TeleOp extends LinearOpMode {
         L_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         R_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        rampServo = hardwareMap.get(Servo.class, "rampServo");
-        FeederServo= hardwareMap.get(Servo.class, "feederServo");
+        rampServo   = hardwareMap.get(Servo.class, "rampServo");
+        FeederServo = hardwareMap.get(Servo.class, "feederServo");
+        TurretServo = hardwareMap.get(Servo.class, "turretServo");
 
 
     }

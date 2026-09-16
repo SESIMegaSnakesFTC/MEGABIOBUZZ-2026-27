@@ -8,6 +8,8 @@ import com.pedropathing.paths.Path;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import java.util.List;
 
 
@@ -73,7 +75,8 @@ public class AzulBaixo extends LinearOpMode {
 
     private void seguirPath(Path path){
         follower.follow(path);
-        while (opModeIsActive() && follower.isBusy()){
+        ElapsedTime timer = new ElapsedTime();
+        while (opModeIsActive() && follower.isBusy() && timer.seconds() < 5){
 
             follower.update();
         }
