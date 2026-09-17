@@ -62,10 +62,10 @@ class pathAzulCima {
 }
 
 @Autonomous(name = "AzulCima", group = "TeleOp")
-public class AzulCima extends LinearOpMode {
+public class AzulCimaMov extends LinearOpMode {
 
     private Follower follower;
-    private final pathAzulCima pathZulCima = new pathAzulCima();
+    private final pathAzulCima pathZulCimaMov = new pathAzulCima();
 
     @Override
     public void runOpMode() {
@@ -76,7 +76,7 @@ public class AzulCima extends LinearOpMode {
         }
 
         follower = constant.create(hardwareMap);
-        follower.setPose(pathZulCima.start);
+        follower.setPose(pathZulCimaMov.start);
 
         waitForStart();
 
@@ -85,14 +85,14 @@ public class AzulCima extends LinearOpMode {
         }
 
 
-        seguirPath(pathZulCima.path1());
-        seguirPath(pathZulCima.path2());
-        seguirPath(pathZulCima.path3());
-        seguirPath(pathZulCima.path4());
-        seguirPath(pathZulCima.path5());
-        seguirPath(pathZulCima.path6());
-        seguirPath(pathZulCima.path7());
-        seguirPath(pathZulCima.path8());
+        seguirPath(pathZulCimaMov.path1());
+        seguirPath(pathZulCimaMov.path2());
+        seguirPath(pathZulCimaMov.path3());
+        seguirPath(pathZulCimaMov.path4());
+        seguirPath(pathZulCimaMov.path5());
+        seguirPath(pathZulCimaMov.path6());
+        seguirPath(pathZulCimaMov.path7());
+        seguirPath(pathZulCimaMov.path8());
     }
 
 

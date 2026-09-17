@@ -13,7 +13,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.List;
 
 
-class pathAzulBaixo {
+class PathAzulBaixoMov {
+
+
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -46,10 +48,10 @@ class pathAzulBaixo {
 }
 
 @Autonomous(name = "AzulBaixo", group = "Auto")
-public class AzulBaixo extends LinearOpMode {
+public class AzulBaixoMov extends LinearOpMode {
 
     private Follower follower;
-    private final pathAzulBaixo PathZulBaixo = new pathAzulBaixo();
+    private final PathAzulBaixoMov PathZulBaixoMov = new PathAzulBaixoMov();
 
     @Override
     public void runOpMode(){
@@ -60,17 +62,17 @@ public class AzulBaixo extends LinearOpMode {
         }
 
         follower = constant.create(hardwareMap);
-        follower.setPose(PathZulBaixo.start);
+        follower.setPose(PathZulBaixoMov.start);
 
         waitForStart();
 
         if (isStopRequested()) {return;}
 
-        seguirPath(PathZulBaixo.path1());
-        seguirPath(PathZulBaixo.path2());
-        seguirPath(PathZulBaixo.path3());
-        seguirPath(PathZulBaixo.path4());
-        seguirPath(PathZulBaixo.path5());
+        seguirPath(PathZulBaixoMov.path1());
+        seguirPath(PathZulBaixoMov.path2());
+        seguirPath(PathZulBaixoMov.path3());
+        seguirPath(PathZulBaixoMov.path4());
+        seguirPath(PathZulBaixoMov.path5());
 
     }
 
