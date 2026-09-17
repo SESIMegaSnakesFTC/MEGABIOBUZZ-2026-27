@@ -7,6 +7,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -61,6 +62,8 @@ class pathAzulCima {
     }
 }
 
+
+@Disabled
 @Autonomous(name = "AzulCima", group = "TeleOp")
 public class AzulCimaMov extends LinearOpMode {
 

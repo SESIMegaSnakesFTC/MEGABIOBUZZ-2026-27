@@ -12,9 +12,9 @@ import static com.pedropathing.api.Paths.*;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.TeleOpLimelight;
 
 import java.util.List;
 
@@ -58,42 +58,21 @@ public class AzulBaixo extends LinearOpMode {
     Functions action = Functions.SECOND_SHOOT;
     private Follower follower;
     private PathAzulBaixo PathZulBaixo;
-
-    //Importações de outro código
-    UsualFunctions Func = new UsualFunctions();
+    
 
     //Mech
 
     Limelight3A limelight3A;
-    enum LimeStates {RIGHT, LEFT, NONE, SEEING}
-    private LimeStates act;
+
     //Servos
-    private Servo LeftrampServo, RightrampServo, FeederServo;
+    private Servo LeftrampServo, RightrampServo, FeederServo, TurretLimeServo, GateServo;
+    private DcMotor Shooter, Feeder;
 
-    //Feeder Servo
-    private final float InitPosFeeder = -0.50f, ClosedPosFeeder = 0.30f, FeederCatchPos = 0.20f; //MUDAR DEPOIS
+    //======================================================================
 
+    //INSTÂNCIA PARA IMPORT'S(Bastante)
 
-    //===========================================================================
-
-    //Limelight + Turret Servo
-    private Servo TurretLimeServo;
-    boolean LimelightON = false;
-    private final float AligmentLime = 0.5f; //MUDAR DEPOIS
-    private final float InitPosLime = 0f; //AJUSTAR DEPOIS -> TESTE
-    private double potence = 0;
-    //===========================================================================
-
-    //Ramp Servo
-    private final float RampCatchPos = 0.3f, RampClosedPos = 0.0f;
-
-    //Gate Servo
-    private Servo GateServo;
-    private final float GateOpen = 0.5f, GateClosed = 0f; //AJUSTAR
-
-
-
-
+    UsualFunctions Func = new UsualFunctions();
 
 
     public void runOpMode(){
@@ -130,8 +109,8 @@ public class AzulBaixo extends LinearOpMode {
 
 
         }
-        GateServo.setPosition(GateClosed);
-        TurretLimeServo.setPosition(InitPosLime);
+        GateServo.setPosition(Func.GateClosed);
+        TurretLimeServo.setPosition(Func.LimeInitPos);
 
 
     }

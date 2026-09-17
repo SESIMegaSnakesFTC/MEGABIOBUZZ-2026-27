@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import java.util.List;
 
 
+@Disabled
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOpBase", group = "TeleOp")
 public class TeleOp extends LinearOpMode {
 

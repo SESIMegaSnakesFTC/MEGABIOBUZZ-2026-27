@@ -1,7 +1,5 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.WarmUp;
 
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -14,16 +12,10 @@ import org.firstinspires.ftc.teamcode.pedro.UsualFunctions;
 import java.util.List;
 
 
-@TeleOp(name = "OficialTeleOp", group = "TeleOp")
-public class TeleOpLimelight extends LinearOpMode {
+@TeleOp(name = "TeleOpWarmUp", group = "TeleOp")
+public class TeleOpWarmUp extends LinearOpMode {
 
 
-    //LIMELIGHT + Turret Servo
-    private Servo TurretLimeServo;
-    boolean LimelightON = false;
-    private double potence = 0;
-
-    private Limelight3A limelight3A;
 
     //==========================================================
 
@@ -34,20 +26,16 @@ public class TeleOpLimelight extends LinearOpMode {
 
     //Mech
 
-    private DcMotor shooter, feeder;
+    private DcMotor L_shooter, R_shooter, feeder;
 
-
-    //BOTÕES
     boolean LastRT = false;
     boolean LastLT = false;
     boolean LastA = false;
-    boolean LastB = false;
 
     //Servos
     private Servo LeftrampServo, RightrampServo, FeederServo;
 
     //===========================================================================
-
 
     //Gate Servo
     private Servo GateServo;
@@ -56,7 +44,6 @@ public class TeleOpLimelight extends LinearOpMode {
     //INSTÂNCIA PARA IMPORT'S(Bastante)
 
     UsualFunctions Func = new UsualFunctions();
-
 
 
 
@@ -78,7 +65,7 @@ public class TeleOpLimelight extends LinearOpMode {
             boolean RT = gamepad2.right_trigger > 0.5;
             boolean LT = gamepad2.left_trigger > 0.5;
             boolean A = gamepad2.a;
-            boolean B = gamepad2.b;
+
 
             double x = gamepad1.left_stick_x * 1.09;
             double y = -gamepad1.left_stick_y;
@@ -98,37 +85,12 @@ public class TeleOpLimelight extends LinearOpMode {
             RightFront.setPower(lbp);
 
 
-            //TURN ON && OFF LIMELIGHT
-            if (B && !LastB) {
-
-
-                limelight3A.start();
-                limelight3A.setPollRateHz(75);
-                limelight3A.pipelineSwitch(9); //AprilTag
-                LimelightON = true;
-
-            }
-
-
-            //Limelight
-            if (LimelightON) {
-
-                LLResult result = limelight3A.getLatestResult();
-                double tx = result.getTx();
-                Func.LimelightTrakingServo(result, tx);
-                potence = Func.PotentShot(result);
-
-            } else {
-                limelight3A.stop();
-                LimelightON = false;
-            }
-
-
             if (RT && !LastRT) {
                 LeftrampServo.setPosition(Func.RampClosedPos);
                 RightrampServo.setPosition(Func.RampClosedPos);
                 FeederServo.setPosition(Func.ClosedPosFeeder);
-                shooter.setPower(potence);
+                L_shooter.setPower(0.8);
+                R_shooter.setPower(0.8);
             }
 
 
@@ -136,9 +98,11 @@ public class TeleOpLimelight extends LinearOpMode {
                 LeftrampServo.setPosition(Func.RampClosedPos);
                 RightrampServo.setPosition(Func.RampClosedPos);
                 FeederServo.setPosition(Func.ClosedPosFeeder);
-                shooter.setPower(potence);
+                L_shooter.setPower(0.8);
+                R_shooter.setPower(0.8);
             } else {
-                shooter.setPower(0);
+                L_shooter.setPower(0.8);
+                R_shooter.setPower(0.8);
             }
 
 
@@ -160,10 +124,8 @@ public class TeleOpLimelight extends LinearOpMode {
             }
 
 
-            //BOTÕES -> Past
             LastRT = RT;
             LastLT = LT;
-            LastB = B;
             LastA = A;
 
 
@@ -194,27 +156,24 @@ public class TeleOpLimelight extends LinearOpMode {
         LeftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Mech
-        shooter = hardwareMap.get(DcMotor.class, "shooter");
+        L_shooter = hardwareMap.get(DcMotor.class, "leftShooter");
+        R_shooter = hardwareMap.get(DcMotor.class, "rightShooter");
         feeder = hardwareMap.get(DcMotor.class, "feeder");
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        L_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        R_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         RightrampServo = hardwareMap.get(Servo.class, "rightRampServo");
         RightrampServo.setDirection(Servo.Direction.REVERSE);
         LeftrampServo = hardwareMap.get(Servo.class, "leftRampServo");
         FeederServo = hardwareMap.get(Servo.class, "feederServo");
-        TurretLimeServo = hardwareMap.get(Servo.class, "limeServo");
         GateServo = hardwareMap.get(Servo.class, "gateServo");
 
-        //FEEDER PARA DENTRO && LIMELIGHT FORWARD
 
         LeftrampServo.setPosition(Func.InitPosFeeder);
         RightrampServo.setPosition(Func.InitPosFeeder);
-        TurretLimeServo.setPosition(Func.LimeInitPos);
         GateServo.setPosition(Func.GateClosed);
 
-        //CAM
 
-        limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
     }
 }

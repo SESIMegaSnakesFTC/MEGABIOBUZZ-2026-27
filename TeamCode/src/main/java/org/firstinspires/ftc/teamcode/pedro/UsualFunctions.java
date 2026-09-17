@@ -38,8 +38,8 @@ public class UsualFunctions extends LinearOpMode {
 
 
     private Limelight3A limelight3A;
-    enum LimeStatus {RIGHT, LEFT, NONE, SEEING}
-    private LimeStatus act;
+    public enum LimeStatus {RIGHT, LEFT, NONE, SEEING}
+    public LimeStatus act;
 
     //==========================================================
 
@@ -52,36 +52,33 @@ public class UsualFunctions extends LinearOpMode {
 
     private DcMotor shooter, feeder;
 
-    private final int TimeToShoot = 1500;
+    private final int TimeUntillShoot = 1500;
 
-    boolean LastRT = false;
-    boolean LastLT = false;
-    boolean LastA = false;
-    boolean LastB = false;
 
     //Servos
     private Servo LeftrampServo, RightrampServo, FeederServo;
 
     //Feeder Servo
-    private final float InitPosFeeder = -0.50f, ClosedPosFeeder = 0.30f, FeederCatchPos = 0.20f; //MUDAR DEPOIS
+    public final float InitPosFeeder = -0.50f, ClosedPosFeeder = 0.30f, FeederCatchPos = 0.20f; //MUDAR DEPOIS
 
 
     //===========================================================================
 
     //Limelight + Turret Servo
     private Servo TurretLimeServo;
-    boolean LimelightON = false;
-    private final float AligmentLime = 0.5f; //MUDAR DEPOIS
-    private final float InitPosLime = 0f; //AJUSTAR DEPOIS -> TESTE
-    private double potence = 0;
+    public final float LimeAligment = 0.5f; //MUDAR DEPOIS
+    public final float LimeInitPos = 0f; //AJUSTAR DEPOIS -> TESTE
+    double potence = 0;
     //===========================================================================
 
+
     //Ramp Servo
-    private final float RampCatchPos = 0.3f, RampClosedPos = 0.0f;
+    public final float RampCatchPos = 0.3f, RampClosedPos = 0.0f;
+
 
     //Gate Servo
     private Servo GateServo;
-    private final float GateOpen = 0.5f, GateClosed = 0f; //AJUSTAR
+    public final float GateOpen = 0.5f, GateClosed = 0f; //AJUSTAR
 
 
     //MEDIDAS PARA ATIRAR PRECISAMENTE
@@ -115,20 +112,20 @@ public class UsualFunctions extends LinearOpMode {
 
             case LEFT:
 
-                TurretLimeServo.setPosition(CurrentPoslime + AligmentLime);
+                TurretLimeServo.setPosition(CurrentPoslime + LimeAligment);
 
                 break;
 
             case RIGHT:
 
-                TurretLimeServo.setPosition(CurrentPoslime - AligmentLime);
+                TurretLimeServo.setPosition(CurrentPoslime - LimeAligment);
 
                 break;
 
             case SEEING:
 
                 shooter.setPower(1);
-                sleep(TimeToShoot);
+                sleep(TimeUntillShoot);
 
                 //===>AVISO PARA ATIRAR<===
                 gamepad1.rumble(0.5, 0.5, 700);
