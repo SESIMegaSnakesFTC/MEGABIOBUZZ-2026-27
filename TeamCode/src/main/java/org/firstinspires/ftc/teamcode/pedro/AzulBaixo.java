@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
 import com.pedropathing.follower.Follower;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -10,6 +12,9 @@ import static com.pedropathing.api.Paths.*;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.TeleOpLimelight;
 
 import java.util.List;
 
@@ -49,11 +54,47 @@ class PathAzulBaixo {
 
 public class AzulBaixo extends LinearOpMode {
 
-    enum Functions {FIRST_SHOOT,SECOND_SHOOT, FLOWER_POLLEN, PARK, NO_ONE}
+    enum Functions {SECOND_SHOOT, FLOWER_POLLEN, PARK, NO_ONE}
     Functions action = Functions.SECOND_SHOOT;
-
     private Follower follower;
     private PathAzulBaixo PathZulBaixo;
+
+    //Importações de outro código
+    UsualFunctions Func = new UsualFunctions();
+
+    //Mech
+
+    Limelight3A limelight3A;
+    enum LimeStates {RIGHT, LEFT, NONE, SEEING}
+    private LimeStates act;
+    //Servos
+    private Servo LeftrampServo, RightrampServo, FeederServo;
+
+    //Feeder Servo
+    private final float InitPosFeeder = -0.50f, ClosedPosFeeder = 0.30f, FeederCatchPos = 0.20f; //MUDAR DEPOIS
+
+
+    //===========================================================================
+
+    //Limelight + Turret Servo
+    private Servo TurretLimeServo;
+    boolean LimelightON = false;
+    private final float AligmentLime = 0.5f; //MUDAR DEPOIS
+    private final float InitPosLime = 0f; //AJUSTAR DEPOIS -> TESTE
+    private double potence = 0;
+    //===========================================================================
+
+    //Ramp Servo
+    private final float RampCatchPos = 0.3f, RampClosedPos = 0.0f;
+
+    //Gate Servo
+    private Servo GateServo;
+    private final float GateOpen = 0.5f, GateClosed = 0f; //AJUSTAR
+
+
+
+
+
 
     public void runOpMode(){
 
@@ -61,6 +102,8 @@ public class AzulBaixo extends LinearOpMode {
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
+
+
 
         follower = constant.create(hardwareMap);
         follower.setPose(PathZulBaixo.start);
@@ -71,35 +114,41 @@ public class AzulBaixo extends LinearOpMode {
             return;
         }
 
-        seguirPath(PathZulBaixo.path1(), );
-        seguirPath(PathZulBaixo.path2());
-        seguirPath(PathZulBaixo.path3());
-        seguirPath(PathZulBaixo.path4());
-        seguirPath(PathZulBaixo.path5());
+        action = Functions.NO_ONE;
+        seguirPath(PathZulBaixo.path1(),action);
+        seguirPath(PathZulBaixo.path2(),action);
+        seguirPath(PathZulBaixo.path3(),action);
+        seguirPath(PathZulBaixo.path4(),action);
+        seguirPath(PathZulBaixo.path5(),action);
 
 
-        while (opModeIsActive()){
+        while (opModeIsActive() && follower.isBusy()){
 
+            LLResult LimeResult = limelight3A.getLatestResult();
+            double tx = LimeResult.getTx();
+            follower.update();
 
 
         }
+        GateServo.setPosition(GateClosed);
+        TurretLimeServo.setPosition(InitPosLime);
+
 
     }
 
-    public void seguirPath(Path path, Functions act){
+    public void seguirPath(Path path, Functions act) {
         follower.follow(path);
 
         switch (act){
 
-            case FIRST_SHOOT:
-
-                break;
-
             case FLOWER_POLLEN:
+
+
 
                 break;
 
             case SECOND_SHOOT:
+
 
                 break;
 
