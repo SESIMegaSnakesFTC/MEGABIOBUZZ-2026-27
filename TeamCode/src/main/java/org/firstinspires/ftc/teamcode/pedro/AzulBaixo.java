@@ -4,6 +4,8 @@ import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
@@ -51,7 +53,7 @@ class PathAzulBaixo {
 }
 
 
-
+@Disabled
 public class AzulBaixo extends LinearOpMode {
 
     enum Functions {SECOND_SHOOT, FLOWER_POLLEN, PARK, NO_ONE}

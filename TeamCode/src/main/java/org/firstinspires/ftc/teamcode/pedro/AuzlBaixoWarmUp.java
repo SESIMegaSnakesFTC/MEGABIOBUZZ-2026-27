@@ -1,7 +1,9 @@
-package org.firstinspires.ftc.teamcode.WarmUp.pedro;
+package org.firstinspires.ftc.teamcode.pedro;
 
 import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import java.util.List;
@@ -13,9 +15,9 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.pedro.constant;
 
 class PathAzulBaixoWarmUp {
 
@@ -49,24 +51,26 @@ class PathAzulBaixoWarmUp {
     }
 }
 
-
-
+@Disabled
+@Autonomous(name = "AzulBaixoWarmUP", group = "Autonomous")
 public class AuzlBaixoWarmUp extends LinearOpMode {
+
+    //ACTIONS
+
+    private enum CurrentAction  { INIT_SHOOT, SHOOT, FEED_OPEN, FEED_CLOSE}
+    private CurrentAction AutoAction = CurrentAction.INIT_SHOOT;
 
     private Follower follower;
     private final PathAzulBaixoWarmUp pathAzulBaixoWarmUp = new PathAzulBaixoWarmUp();
 
     //MECH
 
-    private DcMotor L_shooter, R_shooter;
+    private DcMotor L_shooter = null, R_shooter = null, feeder = null, MidTakeMech = null;
+    private Servo RampServo = null;
 
-
-
-
-
-
-
-
+            // IMPORT's
+    private UsualFunctions Func = new UsualFunctions();
+    private UsualFunctions.StatusRamp actServo = UsualFunctions.StatusRamp.CLOSED;
 
 
 
@@ -77,9 +81,14 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
+        initHardware();
+
         follower = constant.create(hardwareMap);
         follower.setPose(pathAzulBaixoWarmUp.start);
 
+        //>>>RAMPA FECHADA<<<
+
+        RampServo.setPosition(Func.RampClosedPos);
 
         waitForStart();
 
@@ -87,10 +96,23 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
             return;
         }
 
+        DoAction(AutoAction);
         seguirPath(pathAzulBaixoWarmUp.path1());
+        actServo = UsualFunctions.StatusRamp.OPEN;
+        Func.OpenClose(actServo);
+
         seguirPath(pathAzulBaixoWarmUp.path2());
+        AutoAction = CurrentAction.FEED_OPEN;
+        DoAction(AutoAction);
+
         seguirPath(pathAzulBaixoWarmUp.path3());
+        actServo = UsualFunctions.StatusRamp.CLOSED;
+        Func.OpenClose(actServo);
+
         seguirPath(pathAzulBaixoWarmUp.path4());
+        AutoAction = CurrentAction.SHOOT;
+        DoAction(AutoAction);
+
         seguirPath(pathAzulBaixoWarmUp.path5());
 
     }
@@ -104,11 +126,55 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
 
             follower.update();
 
+
+
         }
     }
 
-    private void initialShoot(){
 
+    private void initHardware(){
 
+        feeder      = hardwareMap.get(DcMotor.class, "feeder" );
+        L_shooter   = hardwareMap.get(DcMotor.class, "leftShooter");
+        L_shooter.setDirection(DcMotor.Direction.REVERSE);
+        R_shooter   = hardwareMap.get(DcMotor.class, "rightShooter");
+        MidTakeMech = hardwareMap.get(DcMotor.class, "midTake");
+        RampServo = hardwareMap.get(Servo.class, "rampServo");
+    }
+
+    private void DoAction(CurrentAction currentAction){
+
+        switch (currentAction){
+
+            case INIT_SHOOT:
+
+                sleep(3000);
+                L_shooter.setPower(0.8);
+                R_shooter.setPower(0.8);
+                sleep(375);
+                MidTakeMech.setPower(1);
+                sleep(3600);
+
+                break;
+
+            case SHOOT:
+
+                L_shooter.setPower(0.8);
+                R_shooter.setPower(0.8);
+                sleep(375);
+                MidTakeMech.setPower(1);
+                sleep(3600);
+
+                break;
+
+            case FEED_OPEN:
+
+                feeder.setPower(1.0);
+                break;
+
+            case FEED_CLOSE:
+                feeder.setPower(0);
+                break;
+        }
     }
 }

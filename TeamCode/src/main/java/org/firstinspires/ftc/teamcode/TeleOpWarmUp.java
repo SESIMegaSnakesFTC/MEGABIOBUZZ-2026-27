@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.WarmUp;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.pedro.UsualFunctions;
 import java.util.List;
 
 
+@Disabled
 @TeleOp(name = "TeleOpWarmUp", group = "TeleOp")
 public class TeleOpWarmUp extends LinearOpMode {
 
@@ -26,19 +28,16 @@ public class TeleOpWarmUp extends LinearOpMode {
 
     //Mech
 
-    private DcMotor L_shooter, R_shooter, feeder;
+    private DcMotor L_shooter, R_shooter, feeder, midTake;
 
     boolean LastRT = false;
     boolean LastLT = false;
     boolean LastA = false;
 
     //Servos
-    private Servo LeftrampServo, RightrampServo, FeederServo;
+    private Servo rampServo;
 
     //===========================================================================
-
-    //Gate Servo
-    private Servo GateServo;
 
 
     //INSTÂNCIA PARA IMPORT'S(Bastante)
@@ -74,55 +73,57 @@ public class TeleOpWarmUp extends LinearOpMode {
 
             double Median = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 0.9);
 
-            double rfp = (y + x + rx) / Median;
-            double rbp = (y - x + rx) / Median;
-            double lfp = (y - x - rx) / Median;
-            double lbp = (y + x - rx) / Median;
+            double lfp = (y + x + rx) / Median;
+            double lbp = (y - x + rx) / Median;
+            double rfp = (y - x - rx) / Median;
+            double rbp = (y + x - rx) / Median;
 
-            LeftFront.setPower(rfp);
-            LeftBack.setPower(rbp);
-            RightFront.setPower(lfp);
-            RightFront.setPower(lbp);
+            LeftFront.setPower(lfp);
+            LeftBack.setPower(lbp);
+            RightFront.setPower(rfp);
+            RightBack.setPower(rbp);
 
 
             if (RT && !LastRT) {
-                LeftrampServo.setPosition(Func.RampClosedPos);
-                RightrampServo.setPosition(Func.RampClosedPos);
-                FeederServo.setPosition(Func.ClosedPosFeeder);
+
+                rampServo.setPosition(Func.RampClosedPos);
                 L_shooter.setPower(0.8);
                 R_shooter.setPower(0.8);
+                sleep(375);
+                midTake.setPower(1);
             }
 
 
             if (LT && !LastLT) {
-                LeftrampServo.setPosition(Func.RampClosedPos);
-                RightrampServo.setPosition(Func.RampClosedPos);
-                FeederServo.setPosition(Func.ClosedPosFeeder);
+
+                rampServo.setPosition(Func.RampClosedPos);
                 L_shooter.setPower(0.8);
                 R_shooter.setPower(0.8);
+                midTake.setPower(1);
             } else {
-                L_shooter.setPower(0.8);
-                R_shooter.setPower(0.8);
+                L_shooter.setPower(0);
+                R_shooter.setPower(0);
+                midTake.setPower(0);
             }
 
 
             if (gamepad2.right_bumper || gamepad2.left_bumper) {
 
-                FeederServo.setPosition(Func.FeederCatchPos);
                 feeder.setPower(0.9);
+                midTake.setPower(0.2);
 
             } else {
-                FeederServo.setPosition(Func.ClosedPosFeeder);
+
                 feeder.setPower(0);
+                midTake.setPower(0);
             }
 
-
-            if (A && !LastA) {
-                GateServo.setPosition(Func.GateOpen);
-            } else {
-                GateServo.setPosition(Func.GateClosed);
+            if (A && !LastA){
+                rampServo.setPosition(Func.RampCatchPos);
             }
-
+            else {
+                rampServo.setPosition(Func.RampClosedPos);
+            }
 
             LastRT = RT;
             LastLT = LT;
@@ -130,11 +131,7 @@ public class TeleOpWarmUp extends LinearOpMode {
 
 
         }
-        RightrampServo.setPosition(Func.RampCatchPos);
-        LeftrampServo.setPosition(Func.RampClosedPos);
-        FeederServo.setPosition(Func.ClosedPosFeeder);
-        GateServo.setPosition(Func.GateClosed);
-
+        rampServo.setPosition(Func.RampClosedPos);
     }
 
 
@@ -156,23 +153,20 @@ public class TeleOpWarmUp extends LinearOpMode {
         LeftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Mech
+        midTake = hardwareMap.get(DcMotor.class, "midTake");
         L_shooter = hardwareMap.get(DcMotor.class, "leftShooter");
         R_shooter = hardwareMap.get(DcMotor.class, "rightShooter");
+        midTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         feeder = hardwareMap.get(DcMotor.class, "feeder");
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         L_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         R_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        RightrampServo = hardwareMap.get(Servo.class, "rightRampServo");
-        RightrampServo.setDirection(Servo.Direction.REVERSE);
-        LeftrampServo = hardwareMap.get(Servo.class, "leftRampServo");
-        FeederServo = hardwareMap.get(Servo.class, "feederServo");
-        GateServo = hardwareMap.get(Servo.class, "gateServo");
 
+        rampServo = hardwareMap.get(Servo.class, "rightRampServo");
+        rampServo.setDirection(Servo.Direction.REVERSE);
 
-        LeftrampServo.setPosition(Func.InitPosFeeder);
-        RightrampServo.setPosition(Func.InitPosFeeder);
-        GateServo.setPosition(Func.GateClosed);
+        rampServo.setPosition(Func.RampClosedPos);
 
 
     }

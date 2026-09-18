@@ -56,7 +56,10 @@ public class UsualFunctions extends LinearOpMode {
 
 
     //Servos
-    private Servo LeftrampServo, RightrampServo, FeederServo;
+    private Servo RampServo, FeederServo;
+
+    public enum StatusRamp  {OPEN, CLOSED}
+
 
     //Feeder Servo
     public final float InitPosFeeder = -0.50f, ClosedPosFeeder = 0.30f, FeederCatchPos = 0.20f; //MUDAR DEPOIS
@@ -84,6 +87,9 @@ public class UsualFunctions extends LinearOpMode {
     //MEDIDAS PARA ATIRAR PRECISAMENTE
 
     final float Hrobot = 31.3f, HAprilTag = 130f;
+
+
+
 
     public void runOpMode(){
 
@@ -155,6 +161,25 @@ public class UsualFunctions extends LinearOpMode {
         }
 
         return value; }
+
+    public void OpenClose(StatusRamp statusRamp){
+
+        switch (statusRamp){
+
+            case OPEN:
+
+                RampServo.setPosition(RampCatchPos);
+                break;
+
+
+            case CLOSED:
+
+                RampServo.setPosition(RampClosedPos);
+                break;
+        }
+
+    }
+
 
 }
 

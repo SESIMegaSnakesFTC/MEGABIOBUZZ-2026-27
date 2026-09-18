@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.WarmUp;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -24,7 +24,7 @@ public class testTwoShooters extends LinearOpMode {
 
             if (A && !LastA){
 
-                LeftShooter.setPower(0.9); RightShooter.setPower(0.9);
+                LeftShooter.setPower(0.8); RightShooter.setPower(0.8);
             }
             else {
                 LeftShooter.setPower(0); RightShooter.setPower(0);
