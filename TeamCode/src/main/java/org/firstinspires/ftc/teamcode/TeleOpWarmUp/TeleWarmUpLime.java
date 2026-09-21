@@ -1,21 +1,24 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeleOpWarmUp;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.pedro.UsualFunctions;
+import org.firstinspires.ftc.teamcode.UsualFunctions;
 
 import java.util.List;
 
 
-@Disabled
-@TeleOp(name = "TeleOpWarmUp", group = "TeleOp")
-public class TeleOpWarmUp extends LinearOpMode {
+
+@TeleOp(name = "TeleWarmUpLimelight", group = "TeleOp")
+public class TeleWarmUpLime extends LinearOpMode {
 
 
 
@@ -29,10 +32,17 @@ public class TeleOpWarmUp extends LinearOpMode {
     //Mech
 
     private DcMotor L_shooter, R_shooter, feeder, midTake;
+    private Limelight3A limelight3A;
+    private LLResult result;
+    private Servo LimeServo;
+
+    private IMU imu;
 
     boolean LastRT = false;
     boolean LastLT = false;
-    boolean LastA = false;
+    boolean LastX = false, X_ON = false;
+    boolean LastB = false, B_ON = false;
+    boolean LastY = false, Y_ON = false;
 
     //Servos
     private Servo rampServo;
@@ -61,9 +71,12 @@ public class TeleOpWarmUp extends LinearOpMode {
         while (opModeIsActive()) {
 
 
-            boolean RT = gamepad2.right_trigger > 0.5;
-            boolean LT = gamepad2.left_trigger > 0.5;
-            boolean A = gamepad2.a;
+            boolean RT  = gamepad2.right_trigger > 0.5;
+            boolean LT  = gamepad2.left_trigger > 0.5;
+            boolean X   = gamepad2.x;
+            boolean B   = gamepad2.b;
+            boolean Y   = gamepad2.y;
+            boolean Opt = gamepad2.options;
 
 
             double x = gamepad1.left_stick_x * 1.09;
@@ -83,52 +96,89 @@ public class TeleOpWarmUp extends LinearOpMode {
             RightFront.setPower(rfp);
             RightBack.setPower(rbp);
 
+            if (B_ON){
+                limelight3A.start();
+                limelight3A.setPollRateHz(75);
+                limelight3A.pipelineSwitch(9);
 
-            if (RT && !LastRT) {
+                result = limelight3A.getLatestResult();
 
-                rampServo.setPosition(Func.RampClosedPos);
-                L_shooter.setPower(0.8);
-                R_shooter.setPower(0.8);
-                sleep(375);
-                midTake.setPower(1);
+                if (result != null && result.isValid()){
+
+                    double Tx = result.getTx();
+
+                    Func.LimelightTrakingServo(result, Tx);
+                }
+            }
+            else{
+                limelight3A.stop();
             }
 
 
-            if (LT && !LastLT) {
 
-                rampServo.setPosition(Func.RampClosedPos);
-                L_shooter.setPower(0.8);
-                R_shooter.setPower(0.8);
-                midTake.setPower(1);
-            } else {
-                L_shooter.setPower(0);
-                R_shooter.setPower(0);
-                midTake.setPower(0);
+            if (RT && !LastRT || LT && !LastLT) {
+
+                L_shooter.setPower((B_ON && (result != null && result.isValid()) ?
+                        Func.PotentShot(result) : 0.6567)); //CRIAR PIDF
+
+                R_shooter.setPower((B_ON && (result != null && result.isValid()) ?
+                        Func.PotentShot(result) : 0.6567));
+
+                sleep(375);
+                midTake.setPower(0.9);
             }
 
 
             if (gamepad2.right_bumper || gamepad2.left_bumper) {
 
                 feeder.setPower(0.9);
-                midTake.setPower(0.2);
 
             } else {
 
                 feeder.setPower(0);
-                midTake.setPower(0);
+
             }
 
-            if (A && !LastA){
+            if (X && !LastX){
+                X_ON = !X_ON;
+            }
+
+            if (Y && !LastY){
+                Y_ON = !Y_ON;
+            }
+
+            if (B && !LastB ){
+                B_ON = !B_ON;
+            }
+
+            if (X_ON){
+
                 rampServo.setPosition(Func.RampCatchPos);
             }
-            else {
+            else{
                 rampServo.setPosition(Func.RampClosedPos);
             }
 
+            if (Y_ON){
+
+                midTake.setPower(0.8);
+            }
+            else{
+                midTake.setPower(0);
+            }
+
+            if (Opt){
+
+                Func.PID_Spin(true, LimeServo.getPosition(),
+                        LeftFront, LeftBack, RightFront, RightBack, imu);
+            }
+
+
             LastRT = RT;
             LastLT = LT;
-            LastA = A;
-
+            LastX = X;
+            LastB = B;
+            LastY = Y;
 
         }
         rampServo.setPosition(Func.RampClosedPos);
@@ -162,12 +212,22 @@ public class TeleOpWarmUp extends LinearOpMode {
         L_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         R_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+        limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+        LimeServo   = hardwareMap.get(Servo.class, "LimeServo");
 
         rampServo = hardwareMap.get(Servo.class, "rightRampServo");
         rampServo.setDirection(Servo.Direction.REVERSE);
 
         rampServo.setPosition(Func.RampClosedPos);
 
+        imu = hardwareMap.get(IMU.class, "imu");
 
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP
+        );
+
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        imu.resetYaw();
     }
 }

@@ -5,18 +5,16 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import java.util.List;
-
-
 import static com.pedropathing.api.Paths.*;
-
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.UsualFunctions;
 
 
 class PathAzulBaixoWarmUp {
@@ -70,7 +68,6 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
 
             // IMPORT's
     private UsualFunctions Func = new UsualFunctions();
-    private UsualFunctions.StatusRamp actServo = UsualFunctions.StatusRamp.CLOSED;
 
 
 
@@ -98,16 +95,15 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
 
         DoAction(AutoAction);
         seguirPath(pathAzulBaixoWarmUp.path1());
-        actServo = UsualFunctions.StatusRamp.OPEN;
-        Func.OpenClose(actServo);
 
         seguirPath(pathAzulBaixoWarmUp.path2());
         AutoAction = CurrentAction.FEED_OPEN;
         DoAction(AutoAction);
+        AutoAction = CurrentAction.FEED_CLOSE;
+        DoAction(AutoAction);
 
         seguirPath(pathAzulBaixoWarmUp.path3());
-        actServo = UsualFunctions.StatusRamp.CLOSED;
-        Func.OpenClose(actServo);
+
 
         seguirPath(pathAzulBaixoWarmUp.path4());
         AutoAction = CurrentAction.SHOOT;
@@ -123,11 +119,7 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
         ElapsedTime timer = new ElapsedTime();
 
         while (opModeInInit() && follower.isBusy() && timer.seconds() < 5){
-
             follower.update();
-
-
-
         }
     }
 
@@ -148,10 +140,10 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
 
             case INIT_SHOOT:
 
-                sleep(3000);
-                L_shooter.setPower(0.8);
-                R_shooter.setPower(0.8);
-                sleep(375);
+                sleep(4000);
+                L_shooter.setPower(0.66);
+                R_shooter.setPower(0.66);
+                sleep(400);
                 MidTakeMech.setPower(1);
                 sleep(3600);
 
@@ -159,9 +151,9 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
 
             case SHOOT:
 
-                L_shooter.setPower(0.8);
-                R_shooter.setPower(0.8);
-                sleep(375);
+                L_shooter.setPower(0.66);
+                R_shooter.setPower(0.66);
+                sleep(400);
                 MidTakeMech.setPower(1);
                 sleep(3600);
 
@@ -170,11 +162,14 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
             case FEED_OPEN:
 
                 feeder.setPower(1.0);
+                sleep(2700);
                 break;
 
             case FEED_CLOSE:
                 feeder.setPower(0);
                 break;
         }
+    }
+    private void OpenClose(String OpenOrClose){ RampServo.setPosition(OpenOrClose == "OPEN" ? Func.RampCatchPos : Func.ClosedPosFeeder );
     }
 }

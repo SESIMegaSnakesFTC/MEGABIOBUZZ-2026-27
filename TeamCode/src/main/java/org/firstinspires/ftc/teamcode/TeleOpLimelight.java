@@ -9,8 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.pedro.UsualFunctions;
-
 import java.util.List;
 
 
@@ -41,6 +39,7 @@ public class TeleOpLimelight extends LinearOpMode {
     boolean LastRT = false;
     boolean LastLT = false;
     boolean LastA = false;
+    boolean A_ON  = false;
     boolean LastB = false;
 
     //Servos
@@ -100,13 +99,19 @@ public class TeleOpLimelight extends LinearOpMode {
 
             //TURN ON && OFF LIMELIGHT
             if (B && !LastB) {
+                LimelightON = !LimelightON;
+            }
 
+            if (LimelightON){
 
                 limelight3A.start();
                 limelight3A.setPollRateHz(75);
                 limelight3A.pipelineSwitch(9); //AprilTag
                 LimelightON = true;
-
+            }
+            else {
+                limelight3A.stop();
+                LimelightON = false;
             }
 
 
@@ -117,10 +122,6 @@ public class TeleOpLimelight extends LinearOpMode {
                 double tx = result.getTx();
                 Func.LimelightTrakingServo(result, tx);
                 potence = Func.PotentShot(result);
-
-            } else {
-                limelight3A.stop();
-                LimelightON = false;
             }
 
 
@@ -154,10 +155,20 @@ public class TeleOpLimelight extends LinearOpMode {
 
 
             if (A && !LastA) {
-                GateServo.setPosition(Func.GateOpen);
-            } else {
+                A_ON = !A_ON;
+            }
+
+            if (A_ON){
+
                 GateServo.setPosition(Func.GateClosed);
             }
+            else{
+                GateServo.setPosition(Func.GateClosed);
+            }
+
+
+
+
 
 
             //BOTÕES -> Past

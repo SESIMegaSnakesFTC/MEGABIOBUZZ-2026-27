@@ -1,11 +1,16 @@
-package org.firstinspires.ftc.teamcode.pedro;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.PIDS.RobotPID;
+
+import java.lang.annotation.Target;
 import java.util.Map;
 
 
@@ -50,7 +55,10 @@ public class UsualFunctions extends LinearOpMode {
 
     //Mech
 
-    private DcMotor shooter, feeder;
+    private DcMotor shooter, feeder, MidTake;
+
+    public final float PotentShooter = 0.60f, PotentMidTake = 0.60f;
+    private final double PosEquals90Degree = 0; // TESTAR
 
     private final int TimeUntillShoot = 1500;
 
@@ -58,18 +66,16 @@ public class UsualFunctions extends LinearOpMode {
     //Servos
     private Servo RampServo, FeederServo;
 
-    public enum StatusRamp  {OPEN, CLOSED}
-
 
     //Feeder Servo
-    public final float InitPosFeeder = -0.50f, ClosedPosFeeder = 0.30f, FeederCatchPos = 0.20f; //MUDAR DEPOIS
+    public final float InitPosFeeder = -0.40f, ClosedPosFeeder = -0.15f, FeederCatchPos = 0.20f; //MUDAR DEPOIS
 
 
     //===========================================================================
 
     //Limelight + Turret Servo
     private Servo TurretLimeServo;
-    public final float LimeAligment = 0.5f; //MUDAR DEPOIS
+    public final float LimeAligment = 0.02f; //MUDAR DEPOIS
     public final float LimeInitPos = 0f; //AJUSTAR DEPOIS -> TESTE
     double potence = 0;
     //===========================================================================
@@ -89,6 +95,12 @@ public class UsualFunctions extends LinearOpMode {
     final float Hrobot = 31.3f, HAprilTag = 130f;
 
 
+        //OUTRA CLASSE
+
+    private double Kp = 0.05;
+    private double Ki = 0.0002;
+    private double Kd = 0.0031;
+    private RobotPID FunctionsPID = new RobotPID(Kp,Ki, Kd);
 
 
     public void runOpMode(){
@@ -130,9 +142,6 @@ public class UsualFunctions extends LinearOpMode {
 
             case SEEING:
 
-                shooter.setPower(1);
-                sleep(TimeUntillShoot);
-
                 //===>AVISO PARA ATIRAR<===
                 gamepad1.rumble(0.5, 0.5, 700);
                 gamepad2.rumble(0.5, 0.5, 700);
@@ -149,8 +158,7 @@ public class UsualFunctions extends LinearOpMode {
 
         double Angle = 45 + llResult.getTy();
 
-
-        return 1 * (1.63-Sin(Angle) - Hrobot/HAprilTag);
+        return 0.6 + (HAprilTag - Hrobot)/Sin(Angle)/11.2;
 
     }
     public double Sin(double anglin){
@@ -162,24 +170,48 @@ public class UsualFunctions extends LinearOpMode {
 
         return value; }
 
-    public void OpenClose(StatusRamp statusRamp){
+    public double ConvertPosServoToDegree(double CurrentPosServo){
 
-        switch (statusRamp){
-
-            case OPEN:
-
-                RampServo.setPosition(RampCatchPos);
-                break;
-
-
-            case CLOSED:
-
-                RampServo.setPosition(RampClosedPos);
-                break;
-        }
+        return 90*CurrentPosServo/4;
 
     }
 
+    public void PID_Spin(boolean PositionOfServo, double TargetAngle,
+                         DcMotor leftFront, DcMotor leftBack,
+                         DcMotor rightFront, DcMotor rightBack, IMU imu
+    ) {
 
+        if (PositionOfServo) {
+            while (opModeIsActive()) {
+
+                double CurrentAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+                double potence = FunctionsPID.Calculate(TargetAngle, CurrentAngle);
+
+                leftFront.setPower(potence);
+                leftBack.setPower(potence);
+                rightFront.setPower(-potence);
+                rightBack.setPower(-potence);
+                if (Math.abs(FunctionsPID.RealAngle(TargetAngle - CurrentAngle)) < 1.5) {
+                    break;
+                }
+            }
+        }else{
+            while (opModeIsActive()){
+
+                double CurrentAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+                double potence = FunctionsPID.Calculate(TargetAngle, CurrentAngle);
+
+                leftFront.setPower(potence);
+                leftBack.setPower(potence);
+                rightFront.setPower(-potence);
+                rightBack.setPower(-potence);
+                if (Math.abs(FunctionsPID.RealAngle(TargetAngle - CurrentAngle)) < 1.5){
+                    break;
+                }
+            }
+        }
+    }
 }
 

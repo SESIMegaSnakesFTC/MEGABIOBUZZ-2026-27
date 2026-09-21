@@ -13,9 +13,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.UsualFunctions;
+
 import java.util.List;
-
-
 
 
 class PathAzulCimaWarmUp {
@@ -63,10 +63,11 @@ class PathAzulCimaWarmUp {
 public class AzulCimaWarmUp extends LinearOpMode {
 
     private DcMotor L_Shooter = null, R_Shooter = null, midTake = null;
+    private DcMotor feeder;
     private Servo RampServo= null;
     private Follower follower;
     private enum CurrentActions{
-        INITIAL_SHOOT, SHOOT, FEED
+        INITIAL_SHOOT, SHOOT, FEED_OPEN
     }
     private CurrentActions AutoAction = CurrentActions.INITIAL_SHOOT;
     private final PathAzulCimaWarmUp pathAzulCimaWarmUp = new PathAzulCimaWarmUp();
@@ -75,7 +76,7 @@ public class AzulCimaWarmUp extends LinearOpMode {
 
     //IMPORT's
     private UsualFunctions functions  = new UsualFunctions();
-    private UsualFunctions.StatusRamp StateRamp = UsualFunctions.StatusRamp.CLOSED;
+
 
     public void runOpMode(){
 
@@ -113,6 +114,8 @@ public class AzulCimaWarmUp extends LinearOpMode {
         L_Shooter.setDirection(DcMotor.Direction.REVERSE);
         R_Shooter = hardwareMap.get(DcMotor.class, "rightShooter");
         midTake   = hardwareMap.get(DcMotor.class, "midTake");
+        midTake.setDirection(DcMotor.Direction.REVERSE);
+        feeder    = hardwareMap.get(DcMotor.class, "feeder");
         RampServo = hardwareMap.get(Servo.class, "rampServo");
 
         L_Shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -132,7 +135,34 @@ public class AzulCimaWarmUp extends LinearOpMode {
 
     private void DoAction(CurrentActions act){
 
+        switch (act){
 
+            case INITIAL_SHOOT:
 
+                sleep(4000);
+                L_Shooter.setPower(0.66);
+                R_Shooter.setPower(0.66);
+                sleep(400);
+                midTake.setPower(0.7);
+                sleep(3600);
+
+                break;
+
+            case SHOOT:
+
+                L_Shooter.setPower(0.66);
+                R_Shooter.setPower(0.66);
+                sleep(400);
+                midTake.setPower(0.7);
+                sleep(3600);
+
+                break;
+
+            case FEED_OPEN:
+
+                feeder.setPower(1);
+                sleep(2700);
+                break;
+        }
     }
 }
