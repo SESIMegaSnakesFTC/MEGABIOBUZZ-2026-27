@@ -20,6 +20,7 @@ public class testTwoShooters extends LinearOpMode {
     double potencia = 0.50;
 
 
+
     private UsualFunctions Func = new UsualFunctions();
 
 
@@ -36,7 +37,6 @@ public class testTwoShooters extends LinearOpMode {
 
 
 
-
         waitForStart();
         while (opModeIsActive()){
 
@@ -46,7 +46,8 @@ public class testTwoShooters extends LinearOpMode {
             boolean Y  = gamepad2.y;
             boolean LT = gamepad2.left_trigger > 0.5;
             boolean X  = gamepad2.x;
-            boolean B  = gamepad2.b;
+            boolean RB  = gamepad2.right_bumper;
+            boolean LB = gamepad2.left_bumper;
 
 
 
@@ -60,10 +61,12 @@ public class testTwoShooters extends LinearOpMode {
             if (Y && !LastY){
                 STATUSY = !STATUSY;
             }
-            if (B){
-                potencia += 0.05;
+            if (RB){
+                potencia += 0.01;
             }
-
+            if (LB){
+                potencia -= 0.01;
+            }
 
 
             if (STATUSY){
