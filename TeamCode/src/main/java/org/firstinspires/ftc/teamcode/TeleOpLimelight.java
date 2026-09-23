@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import java.util.List;
 
 
+@Disabled
 @TeleOp(name = "OficialTeleOp", group = "TeleOp")
 public class TeleOpLimelight extends LinearOpMode {
 
@@ -33,7 +35,7 @@ public class TeleOpLimelight extends LinearOpMode {
     //Mech
 
     private DcMotor shooter, feeder;
-
+    private Servo LimeServo;
 
     //BOTÕES
     boolean LastRT = false;
@@ -120,7 +122,7 @@ public class TeleOpLimelight extends LinearOpMode {
 
                 LLResult result = limelight3A.getLatestResult();
                 double tx = result.getTx();
-                Func.LimelightTrakingServo(result, tx);
+                Func.LimelightTrakingServo(limelight3A, true, LimeServo);
                 potence = Func.PotentShot(result);
             }
 
@@ -158,13 +160,7 @@ public class TeleOpLimelight extends LinearOpMode {
                 A_ON = !A_ON;
             }
 
-            if (A_ON){
 
-                GateServo.setPosition(Func.GateClosed);
-            }
-            else{
-                GateServo.setPosition(Func.GateClosed);
-            }
 
 
 
@@ -182,7 +178,7 @@ public class TeleOpLimelight extends LinearOpMode {
         RightrampServo.setPosition(Func.RampCatchPos);
         LeftrampServo.setPosition(Func.RampClosedPos);
         FeederServo.setPosition(Func.ClosedPosFeeder);
-        GateServo.setPosition(Func.GateClosed);
+
 
     }
 
@@ -222,7 +218,9 @@ public class TeleOpLimelight extends LinearOpMode {
         LeftrampServo.setPosition(Func.InitPosFeeder);
         RightrampServo.setPosition(Func.InitPosFeeder);
         TurretLimeServo.setPosition(Func.LimeInitPos);
-        GateServo.setPosition(Func.GateClosed);
+
+
+        LimeServo = hardwareMap.get(Servo.class, "LimeServo");
 
         //CAM
 

@@ -11,16 +11,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
 import org.firstinspires.ftc.teamcode.UsualFunctions;
 
 import java.util.List;
 
-
-
 @TeleOp(name = "TeleWarmUpLimelight", group = "TeleOp")
 public class TeleWarmUpLime extends LinearOpMode {
-
-
 
     //==========================================================
 
@@ -31,18 +28,17 @@ public class TeleWarmUpLime extends LinearOpMode {
 
     //Mech
 
-    private DcMotor L_shooter, R_shooter, feeder, midTake;
+    private DcMotor feeder, midTake;
+    private GeralShooterConfig shooters;
+    private double targetShooterVelocity = 1585;
     private Limelight3A limelight3A;
-    private LLResult result;
-    private Servo LimeServo;
-
     private IMU imu;
 
-    boolean LastRT = false;
-    boolean LastLT = false;
+    boolean LastRT = false, RT_ON = false;
     boolean LastX = false, X_ON = false;
     boolean LastB = false, B_ON = false;
-    boolean LastY = false, Y_ON = false;
+
+    private final float RampClosedPos = 0.59f, RampOpenPos = 0.84f;
 
     //Servos
     private Servo rampServo;
@@ -72,11 +68,9 @@ public class TeleWarmUpLime extends LinearOpMode {
 
 
             boolean RT  = gamepad2.right_trigger > 0.5;
-            boolean LT  = gamepad2.left_trigger > 0.5;
             boolean X   = gamepad2.x;
             boolean B   = gamepad2.b;
-            boolean Y   = gamepad2.y;
-            boolean Opt = gamepad2.options;
+            boolean A = gamepad2.a;
 
 
             double x = gamepad1.left_stick_x * 1.09;
@@ -85,6 +79,7 @@ public class TeleWarmUpLime extends LinearOpMode {
 
 
             double Median = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 0.9);
+
 
             double lfp = (y + x + rx) / Median;
             double lbp = (y - x + rx) / Median;
@@ -96,18 +91,22 @@ public class TeleWarmUpLime extends LinearOpMode {
             RightFront.setPower(rfp);
             RightBack.setPower(rbp);
 
+
+
             if (B_ON){
                 limelight3A.start();
                 limelight3A.setPollRateHz(75);
                 limelight3A.pipelineSwitch(9);
 
-                result = limelight3A.getLatestResult();
+                LLResult result = limelight3A.getLatestResult();
 
-                if (result != null && result.isValid()){
 
-                    double Tx = result.getTx();
+                if ( A && (result != null && result.isValid())){
 
-                    Func.LimelightTrakingServo(result, Tx);
+                    Func.PID_Spin_WithoutServo(imu.getRobotYawPitchRollAngles().getYaw()
+                                    + result.getTx(),
+                            LeftFront, LeftBack, RightFront, RightBack, imu);
+
                 }
             }
             else{
@@ -116,24 +115,21 @@ public class TeleWarmUpLime extends LinearOpMode {
 
 
 
-            if (RT && !LastRT || LT && !LastLT) {
+            if (RT && !LastRT) {
 
-                L_shooter.setPower((B_ON && (result != null && result.isValid()) ?
-                        Func.PotentShot(result) : 0.6567)); //CRIAR PIDF
-
-                R_shooter.setPower((B_ON && (result != null && result.isValid()) ?
-                        Func.PotentShot(result) : 0.6567));
-
-                sleep(375);
-                midTake.setPower(0.9);
+              RT_ON = !RT_ON;
             }
 
 
-            if (gamepad2.right_bumper || gamepad2.left_bumper) {
+            if (gamepad2.right_bumper ) {
 
                 feeder.setPower(0.9);
 
-            } else {
+            }else if (gamepad2.left_bumper){
+
+                feeder.setPower(-0.9);
+            }
+            else {
 
                 feeder.setPower(0);
 
@@ -143,42 +139,41 @@ public class TeleWarmUpLime extends LinearOpMode {
                 X_ON = !X_ON;
             }
 
-            if (Y && !LastY){
-                Y_ON = !Y_ON;
-            }
-
             if (B && !LastB ){
                 B_ON = !B_ON;
             }
 
             if (X_ON){
 
-                rampServo.setPosition(Func.RampCatchPos);
+                rampServo.setPosition(RampOpenPos);
             }
             else{
-                rampServo.setPosition(Func.RampClosedPos);
+                rampServo.setPosition(RampClosedPos);
             }
 
-            if (Y_ON){
 
+
+            if (RT_ON){
+                shooters.setTargetVelocity(targetShooterVelocity);
+                shooters.update();
                 midTake.setPower(0.8);
-            }
-            else{
+            } else {
+                shooters.stop();
                 midTake.setPower(0);
             }
 
-            if (Opt){
+            telemetry.addData("Shooter Status", RT_ON ? "LIGADO (PIDF)" : "DESLIGADO");
+            telemetry.addData("Target Vel", targetShooterVelocity);
+            telemetry.addData("Left Shooter Vel", shooters.getLeftVelocity());
+            telemetry.addData("Right Shooter Vel", shooters.getRightVelocity());
+            telemetry.update();
 
-                Func.PID_Spin(true, LimeServo.getPosition(),
-                        LeftFront, LeftBack, RightFront, RightBack, imu);
-            }
 
 
             LastRT = RT;
-            LastLT = LT;
             LastX = X;
             LastB = B;
-            LastY = Y;
+
 
         }
         rampServo.setPosition(Func.RampClosedPos);
@@ -203,17 +198,14 @@ public class TeleWarmUpLime extends LinearOpMode {
         LeftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Mech
+        shooters = new GeralShooterConfig(hardwareMap);
         midTake = hardwareMap.get(DcMotor.class, "midTake");
-        L_shooter = hardwareMap.get(DcMotor.class, "leftShooter");
-        R_shooter = hardwareMap.get(DcMotor.class, "rightShooter");
         midTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         feeder = hardwareMap.get(DcMotor.class, "feeder");
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        L_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        R_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
-        LimeServo   = hardwareMap.get(Servo.class, "LimeServo");
+
 
         rampServo = hardwareMap.get(Servo.class, "rightRampServo");
         rampServo.setDirection(Servo.Direction.REVERSE);
@@ -224,7 +216,7 @@ public class TeleWarmUpLime extends LinearOpMode {
 
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
         );
 
         imu.initialize(new IMU.Parameters(orientationOnRobot));

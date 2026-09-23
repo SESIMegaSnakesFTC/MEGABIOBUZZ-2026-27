@@ -88,9 +88,6 @@ public class AzulCimaWarmUp extends LinearOpMode {
         follower = constant.create(hardwareMap);
         follower.setPose(pathAzulCimaWarmUp.start);
 
-        //RAMPA FECHADA
-
-        RampServo.setPosition(functions.RampClosedPos);
 
         waitForStart();
 
@@ -121,6 +118,10 @@ public class AzulCimaWarmUp extends LinearOpMode {
         L_Shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         R_Shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         midTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        //RAMPA FECHADA
+        RampServo.setPosition(functions.RampClosedPos);
+
     }
     private void seguirPath(Path path){
 
@@ -130,39 +131,6 @@ public class AzulCimaWarmUp extends LinearOpMode {
         while(opModeIsActive() && follower.isBusy() && timer.seconds() < 5 ){
 
             follower.update();
-        }
-    }
-
-    private void DoAction(CurrentActions act){
-
-        switch (act){
-
-            case INITIAL_SHOOT:
-
-                sleep(4000);
-                L_Shooter.setPower(0.66);
-                R_Shooter.setPower(0.66);
-                sleep(400);
-                midTake.setPower(0.7);
-                sleep(3600);
-
-                break;
-
-            case SHOOT:
-
-                L_Shooter.setPower(0.66);
-                R_Shooter.setPower(0.66);
-                sleep(400);
-                midTake.setPower(0.7);
-                sleep(3600);
-
-                break;
-
-            case FEED_OPEN:
-
-                feeder.setPower(1);
-                sleep(2700);
-                break;
         }
     }
 }

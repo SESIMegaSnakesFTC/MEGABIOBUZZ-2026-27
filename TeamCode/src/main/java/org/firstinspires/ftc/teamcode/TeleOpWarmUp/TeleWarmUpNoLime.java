@@ -7,15 +7,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
 import org.firstinspires.ftc.teamcode.UsualFunctions;
 
 import java.util.List;
 
-
 @TeleOp(name = "TeleOpWarmUp", group = "TeleOp")
 public class TeleWarmUpNoLime extends LinearOpMode {
-
-
 
     //==========================================================
 
@@ -26,11 +24,13 @@ public class TeleWarmUpNoLime extends LinearOpMode {
 
     //Mech
 
-    private DcMotor L_shooter, R_shooter, feeder, midTake;
+    private DcMotor feeder, midTake;
+    private GeralShooterConfig shooters;
+    private double targetShooterVelocity = 1405;
 
-    boolean LastRT = false;
-    boolean LastLT = false;
+    boolean LastRT = false, RT_ON = false;
     boolean LastX = false, X_ON = false;
+
 
 
     //Servos
@@ -61,7 +61,6 @@ public class TeleWarmUpNoLime extends LinearOpMode {
 
 
             boolean RT = gamepad2.right_trigger > 0.5;
-            boolean LT = gamepad2.left_trigger > 0.5;
             boolean X = gamepad2.x;
 
 
@@ -83,29 +82,27 @@ public class TeleWarmUpNoLime extends LinearOpMode {
             RightBack.setPower(rbp);
 
 
-            if (RT && !LastRT || LT && !LastLT) {
+            if (RT && !LastRT ) {
 
-                L_shooter.setPower(0.6);
-                R_shooter.setPower(0.6);
-                sleep(385);
-                midTake.setPower(1);
-            } else {
-                L_shooter.setPower(0);
-                R_shooter.setPower(0);
-                midTake.setPower(0);
+                RT_ON = !RT_ON;
             }
 
 
-            if (gamepad2.right_bumper || gamepad2.left_bumper) {
+            if (gamepad2.right_bumper) {
 
                 feeder.setPower(0.9);
-                midTake.setPower(0.2);
 
-            } else {
 
-                feeder.setPower(0);
+            } else if (gamepad2.left_bumper){
+
+                feeder.setPower(-0.88);
 
             }
+            else{
+                feeder.setPower(0);
+            }
+
+
 
                 // BUTTONS
 
@@ -114,7 +111,6 @@ public class TeleWarmUpNoLime extends LinearOpMode {
             }
 
             if (X_ON){
-
                 rampServo.setPosition(Func.RampCatchPos);
             }
             else{
@@ -122,14 +118,32 @@ public class TeleWarmUpNoLime extends LinearOpMode {
             }
 
 
+
+            if (RT_ON){
+                shooters.setTargetVelocity(targetShooterVelocity);
+                shooters.update();
+                midTake.setPower(-0.99);
+            }
+            else{
+                shooters.stop();
+                midTake.setPower(0);
+            }
+
+            telemetry.addData("Target Vel", targetShooterVelocity);
+            telemetry.addData("Left Shooter Vel", shooters.getLeftVelocity());
+            telemetry.addData("Right Shooter Vel", shooters.getRightVelocity());
+            telemetry.addData("STATUS RAMP", rampServo.getPosition() == Func.RampCatchPos ? "ABERTO" : "FECHADO");
+            telemetry.update();
+
+
             LastRT = RT;
-            LastLT = LT;
             LastX = X;
 
 
 
+
         }
-        rampServo.setPosition(Func.RampClosedPos);
+
     }
 
 
@@ -140,10 +154,10 @@ public class TeleWarmUpNoLime extends LinearOpMode {
         RightBack = hardwareMap.get(DcMotor.class, "rightBack");
         RightFront = hardwareMap.get(DcMotor.class, "rightFront");
 
-        RightFront.setDirection(DcMotor.Direction.REVERSE);
-        RightBack.setDirection(DcMotor.Direction.REVERSE);
-        LeftBack.setDirection(DcMotorSimple.Direction.FORWARD);
-        LeftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        RightFront.setDirection(DcMotor.Direction.FORWARD);
+        RightBack.setDirection(DcMotor.Direction.FORWARD);
+        LeftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        LeftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
         RightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -151,20 +165,15 @@ public class TeleWarmUpNoLime extends LinearOpMode {
         LeftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Mech
+        shooters = new GeralShooterConfig(hardwareMap);
         midTake = hardwareMap.get(DcMotor.class, "midTake");
-        L_shooter = hardwareMap.get(DcMotor.class, "leftShooter");
-        R_shooter = hardwareMap.get(DcMotor.class, "rightShooter");
         midTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         feeder = hardwareMap.get(DcMotor.class, "feeder");
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        L_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        R_shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
         rampServo = hardwareMap.get(Servo.class, "rightRampServo");
-        rampServo.setDirection(Servo.Direction.REVERSE);
 
-        rampServo.setPosition(Func.RampClosedPos);
 
 
     }

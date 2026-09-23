@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.PIDS;
 
 
-import android.media.audiofx.DynamicsProcessing;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -27,8 +26,8 @@ public class GeralShooterConfig {
         rightShooter.setDirection(DcMotorEx.Direction.REVERSE);
 
         double Kp = 0.0008, Ki = 0.00054, Kd = 0.0001, Kf = 0.00058;
-        rightPIDF = new ShootersPIDF(Kp, Ki, Kd, Kf);
-        leftPIDF  = new ShootersPIDF(Kp, Ki, Kd, Kf);
+        rightPIDF = new ShootersPIDF(Kp, Ki, Kd, Kf, hardwareMap);
+        leftPIDF  = new ShootersPIDF(Kp, Ki, Kd, Kf, hardwareMap);
 
     }
     public void setTargetVelocity(double TicksPerSec){
@@ -57,7 +56,7 @@ public class GeralShooterConfig {
         double rightPotence = rightPIDF.Calculate(targetVelocity, rightvel);
 
         double Diff =  rightvel - leftVel;
-        double correction = K_SYNC * Diff;
+        double correction = K_SYNC * (Diff+0.02);
 
         leftShooter.setPower(LimiterPotence(leftPotence + correction));
         rightShooter.setPower(LimiterPotence(rightPotence - correction));
@@ -69,6 +68,6 @@ public class GeralShooterConfig {
         return Math.max(-1, Math.min(0.75, potent));
     }
 
-    public double getRightVelocity(){ return leftShooter.getVelocity();}
-    public double getLeftVelocity(){ return rightShooter.getVelocity();}
+    public double getRightVelocity(){ return rightShooter.getVelocity(); }
+    public double getLeftVelocity(){ return leftShooter.getVelocity(); }
 }

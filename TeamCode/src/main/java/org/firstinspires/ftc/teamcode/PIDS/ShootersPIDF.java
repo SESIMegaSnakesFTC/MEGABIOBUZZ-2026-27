@@ -1,22 +1,25 @@
 package org.firstinspires.ftc.teamcode.PIDS;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 public class ShootersPIDF {
 
-    private double Kp = 0.05;
-    private double Ki = 0.00091;
-    private double Kd = 0.0091;
+    private double Kp = 0.0451;
+    private double Ki = 0.00094;
+    private double Kd = 0.0081;
     private double Kf = 0.000398;
     private double IntegralSUM = 0;
-    private final double MAX_I = 0.2;
+    private final double MAX_I = 0.3;
     private double LastTimeNANO = 0;
     private double LastError = 0;
 
 
-    public ShootersPIDF(double Kp, double Ki, double Kd, double Kf){
+    public ShootersPIDF(double Kp, double Ki, double Kd, double Kf, HardwareMap hardwareMap){
         this.Kp = Kp;
         this.Ki = Ki;
         this.Kd = Kd;
         this.Kf = Kf;
+
     }
 
     public double Calculate(double TargetTicks, double CurrentTicks){
@@ -65,4 +68,6 @@ public class ShootersPIDF {
 
         return Math.max(min, Math.min(max, CurrentPOtence));
     }
+
+
 }

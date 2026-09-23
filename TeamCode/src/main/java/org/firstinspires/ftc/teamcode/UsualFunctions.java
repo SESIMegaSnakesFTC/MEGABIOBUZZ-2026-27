@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
 import org.firstinspires.ftc.teamcode.PIDS.RobotPID;
 
-import java.lang.annotation.Target;
 import java.util.Map;
 
 
@@ -74,20 +74,17 @@ public class UsualFunctions extends LinearOpMode {
     //===========================================================================
 
     //Limelight + Turret Servo
-    private Servo TurretLimeServo;
-    public final float LimeAligment = 0.02f; //MUDAR DEPOIS
+    public final float LimeAligment = 0.07f; //MUDAR DEPOIS
     public final float LimeInitPos = 0f; //AJUSTAR DEPOIS -> TESTE
-    double potence = 0;
     //===========================================================================
 
 
     //Ramp Servo
-    public final float RampCatchPos = 0.3f, RampClosedPos = 0.0f;
+    public final float RampCatchPos = 0.7f, RampClosedPos = 0.5f;
 
 
     //Gate Servo
     private Servo GateServo;
-    public final float GateOpen = 0.5f, GateClosed = 0f; //AJUSTAR
 
 
     //MEDIDAS PARA ATIRAR PRECISAMENTE
@@ -100,15 +97,20 @@ public class UsualFunctions extends LinearOpMode {
     private double Kp = 0.05;
     private double Ki = 0.0002;
     private double Kd = 0.0031;
+    private final int TicksPsec = 1987;
     private RobotPID FunctionsPID = new RobotPID(Kp,Ki, Kd);
+
+    public enum CurrentAction  { INIT_SHOOT, SHOOT, FEED}
 
 
     public void runOpMode(){
 
     }
 
-    public void LimelightTrakingServo(LLResult resultado, double Tx){
+    public void LimelightTrakingServo(Limelight3A limelight3A, boolean AtTeleOp, Servo TurretLimeServo){
 
+        LLResult resultado = limelight3A.getLatestResult();
+        double Tx = resultado.getTx();
 
         //>>Defining Position of Turret's using LimeServo<<
 
@@ -130,21 +132,25 @@ public class UsualFunctions extends LinearOpMode {
 
             case LEFT:
 
-                TurretLimeServo.setPosition(CurrentPoslime + LimeAligment);
-
+                while (Math.abs(Tx) > 2){
+                    TurretLimeServo.setPosition(CurrentPoslime + LimeAligment);
+                }
                 break;
 
             case RIGHT:
 
-                TurretLimeServo.setPosition(CurrentPoslime - LimeAligment);
-
+                while (Math.abs(Tx) < -2){
+                    TurretLimeServo.setPosition(CurrentPoslime - LimeAligment);
+                }
                 break;
 
             case SEEING:
 
-                //===>AVISO PARA ATIRAR<===
-                gamepad1.rumble(0.5, 0.5, 700);
-                gamepad2.rumble(0.5, 0.5, 700);
+                if (AtTeleOp){
+                    //===>AVISO PARA ATIRAR<===
+                    gamepad1.rumble(0.5, 0.5, 700);
+                    gamepad2.rumble(0.5, 0.5, 700);
+                }
 
                 break;
 
@@ -170,19 +176,17 @@ public class UsualFunctions extends LinearOpMode {
 
         return value; }
 
-    public double ConvertPosServoToDegree(double CurrentPosServo){
-
-        return 90*CurrentPosServo/4;
-
-    }
 
     public void PID_Spin(boolean PositionOfServo, double TargetAngle,
                          DcMotor leftFront, DcMotor leftBack,
-                         DcMotor rightFront, DcMotor rightBack, IMU imu
+                         DcMotor rightFront, DcMotor rightBack, IMU imu,
+                         Servo LimeServo
     ) {
 
         if (PositionOfServo) {
             while (opModeIsActive()) {
+
+                TargetAngle *= 180;
 
                 double CurrentAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
@@ -212,6 +216,80 @@ public class UsualFunctions extends LinearOpMode {
                 }
             }
         }
+
+        //RESETANDO PARA ESTAR VIRADO PARA A FRENTE
+        LimeServo.setPosition(0.5);
+
+
+    }
+
+    public void DoAction(CurrentAction act,
+                         GeralShooterConfig shooters, DcMotor Feeder){
+
+
+        switch (act){
+
+            case INIT_SHOOT:
+
+                sleep(3000);
+                shooters.setTargetVelocity(TicksPsec);
+                shooters.update();
+                sleep(3700);
+                shooters.stop();
+                break;
+
+
+            case FEED:
+
+                //ABRIR A RAMPA
+                Feeder.setPower(0.8);
+                MidTake.setPower(0.3);
+                sleep(3300);
+                feeder.setPower(0); MidTake.setPower(0);
+                break;
+
+            case SHOOT:
+
+                shooters.setTargetVelocity(TicksPsec);
+                shooters.update();
+                sleep(3700);
+                shooters.stop();
+                break;
+        }
+
+    }
+    public double getCurrentPositionServoLimelight(Servo LimeServo){ return LimeServo.getPosition() * 180; }
+
+
+    public void PID_Spin_WithoutServo( double TargetAngle,
+                         DcMotor leftFront, DcMotor leftBack,
+                         DcMotor rightFront, DcMotor rightBack, IMU imu
+    ) {
+
+        while(opModeIsActive()){
+
+
+            double CurrentAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+            double potence = FunctionsPID.Calculate(TargetAngle, CurrentAngle);
+
+
+            leftFront.setPower(potence);
+            leftBack.setPower(potence);
+            rightFront.setPower(-potence);
+            rightBack.setPower(-potence);
+
+
+            if (Math.abs(FunctionsPID.RealAngle(TargetAngle - CurrentAngle)) < 2.5 ){
+
+                gamepad1.rumble(0.5, 0.5, 700);
+                gamepad2.rumble(0.5, 0.5, 700);
+                break;
+            }
+
+        }
+
+
     }
 }
 

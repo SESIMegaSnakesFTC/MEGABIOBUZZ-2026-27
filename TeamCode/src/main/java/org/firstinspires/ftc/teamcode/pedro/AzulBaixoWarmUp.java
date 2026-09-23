@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
 import org.firstinspires.ftc.teamcode.UsualFunctions;
 
 
@@ -51,19 +52,19 @@ class PathAzulBaixoWarmUp {
 
 @Disabled
 @Autonomous(name = "AzulBaixoWarmUP", group = "Autonomous")
-public class AuzlBaixoWarmUp extends LinearOpMode {
+public class AzulBaixoWarmUp extends LinearOpMode {
 
     //ACTIONS
 
-    private enum CurrentAction  { INIT_SHOOT, SHOOT, FEED_OPEN, FEED_CLOSE}
-    private CurrentAction AutoAction = CurrentAction.INIT_SHOOT;
+    private UsualFunctions.CurrentAction AutoAction = UsualFunctions.CurrentAction.INIT_SHOOT;
 
     private Follower follower;
     private final PathAzulBaixoWarmUp pathAzulBaixoWarmUp = new PathAzulBaixoWarmUp();
 
     //MECH
 
-    private DcMotor L_shooter = null, R_shooter = null, feeder = null, MidTakeMech = null;
+    private GeralShooterConfig shooters;
+    private DcMotor feeder = null, MidTakeMech = null;
     private Servo RampServo = null;
 
             // IMPORT's
@@ -80,6 +81,8 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
 
         initHardware();
 
+        shooters = new GeralShooterConfig(hardwareMap);
+
         follower = constant.create(hardwareMap);
         follower.setPose(pathAzulBaixoWarmUp.start);
 
@@ -93,21 +96,21 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
             return;
         }
 
-        DoAction(AutoAction);
+        Func.DoAction(AutoAction, shooters, feeder); AutoAction = UsualFunctions.CurrentAction.FEED;
         seguirPath(pathAzulBaixoWarmUp.path1());
+        RampServo.setPosition(Func.RampCatchPos);
+
 
         seguirPath(pathAzulBaixoWarmUp.path2());
-        AutoAction = CurrentAction.FEED_OPEN;
-        DoAction(AutoAction);
-        AutoAction = CurrentAction.FEED_CLOSE;
-        DoAction(AutoAction);
+        Func.DoAction(AutoAction, shooters, feeder); AutoAction = UsualFunctions.CurrentAction.SHOOT;
+
 
         seguirPath(pathAzulBaixoWarmUp.path3());
+        RampServo.setPosition(Func.RampClosedPos);
 
 
         seguirPath(pathAzulBaixoWarmUp.path4());
-        AutoAction = CurrentAction.SHOOT;
-        DoAction(AutoAction);
+        Func.DoAction(AutoAction, shooters, feeder);
 
         seguirPath(pathAzulBaixoWarmUp.path5());
 
@@ -127,49 +130,8 @@ public class AuzlBaixoWarmUp extends LinearOpMode {
     private void initHardware(){
 
         feeder      = hardwareMap.get(DcMotor.class, "feeder" );
-        L_shooter   = hardwareMap.get(DcMotor.class, "leftShooter");
-        L_shooter.setDirection(DcMotor.Direction.REVERSE);
-        R_shooter   = hardwareMap.get(DcMotor.class, "rightShooter");
         MidTakeMech = hardwareMap.get(DcMotor.class, "midTake");
         RampServo = hardwareMap.get(Servo.class, "rampServo");
-    }
-
-    private void DoAction(CurrentAction currentAction){
-
-        switch (currentAction){
-
-            case INIT_SHOOT:
-
-                sleep(4000);
-                L_shooter.setPower(0.66);
-                R_shooter.setPower(0.66);
-                sleep(400);
-                MidTakeMech.setPower(1);
-                sleep(3600);
-
-                break;
-
-            case SHOOT:
-
-                L_shooter.setPower(0.66);
-                R_shooter.setPower(0.66);
-                sleep(400);
-                MidTakeMech.setPower(1);
-                sleep(3600);
-
-                break;
-
-            case FEED_OPEN:
-
-                feeder.setPower(1.0);
-                sleep(2700);
-                break;
-
-            case FEED_CLOSE:
-                feeder.setPower(0);
-                break;
-        }
-    }
-    private void OpenClose(String OpenOrClose){ RampServo.setPosition(OpenOrClose == "OPEN" ? Func.RampCatchPos : Func.ClosedPosFeeder );
+        RampServo.setPosition(Func.RampClosedPos);
     }
 }
