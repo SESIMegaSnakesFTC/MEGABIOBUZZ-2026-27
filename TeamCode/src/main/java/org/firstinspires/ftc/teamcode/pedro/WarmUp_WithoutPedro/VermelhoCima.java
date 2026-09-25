@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.pedro;
+package org.firstinspires.ftc.teamcode.pedro.WarmUp_WithoutPedro;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-@Autonomous(name = "Autonomo WarmUp - VERMELHO (Midtake Fix)", group = "Autonomous")
-public class VermelhoBaixoWarmUp extends LinearOpMode {
+@Autonomous(name = "VERMELHO/AZUL PARK", group = "Autonomous")
+public class VermelhoCima extends LinearOpMode {
 
     private DcMotor leftFront  = null;
     private DcMotor rightFront = null;
@@ -66,8 +66,6 @@ public class VermelhoBaixoWarmUp extends LinearOpMode {
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        telemetry.addData("Status", "Aguardando início (PLAY)...");
-        telemetry.update();
 
         waitForStart();
         runtime.reset();
@@ -76,49 +74,12 @@ public class VermelhoBaixoWarmUp extends LinearOpMode {
 
         if (opModeIsActive()) {
 
+           driveMecanum(0, 0.5, 0);
+           sleep(120);
+           pararTracao();
+           driveMecanum(0.5, 0, 0);
+           sleep(400);
 
-
-            leftShooter.setPower(0.85);
-            rightShooter.setPower(0.85);
-            midTake.setPower(0.9);
-            sleep(2000);
-
-            leftShooter.setPower(0);
-            rightShooter.setPower(0);
-            midTake.setPower(0);
-
-            // 2. VIRA PARA A ESQUERDA (90 GRAUS)
-
-            girarParaAngulo(-90.0, 2.0);
-
-            // 3. ANDA RETO
-            telemetry.addData("Passo", "3. Andando para frente");
-            telemetry.update();
-            driveMecanum(0, 0.5, 0);
-            sleep(1500);
-            pararTracao();
-
-            // 4. ATIVA O FEEDER POR 2 SEGUNDOS
-            telemetry.addData("Passo", "4. Ativando feeder");
-            telemetry.update();
-            feeder.setPower(0.7);
-            sleep(2000);
-            feeder.setPower(0);
-
-            // 5. VOLTA PARA A DIREÇÃO INICIAL (0 GRAUS)
-            telemetry.addData("Passo", "5. Retornando ao ângulo inicial (0°)");
-            telemetry.update();
-            girarParaAngulo(0.0, 2.0);
-
-            // 6. ANDA PARA FRENTE POR 1.5 SEGUNDOS
-            telemetry.addData("Passo", "6. Avançando por 1.5 segundos");
-            telemetry.update();
-            driveMecanum(0, 0.5, 0);
-            sleep(1500);
-
-            pararTracao();
-            telemetry.addData("Status", "Autônomo Finalizado!");
-            telemetry.update();
         }
     }
 

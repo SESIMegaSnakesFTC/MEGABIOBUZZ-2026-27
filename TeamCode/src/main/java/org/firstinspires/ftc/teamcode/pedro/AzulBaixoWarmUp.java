@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
-import org.firstinspires.ftc.teamcode.UsualFunctions;
+import org.firstinspires.ftc.teamcode.Another_Codes.UsualFunctions;
 
 
 class PathAzulBaixoWarmUp {

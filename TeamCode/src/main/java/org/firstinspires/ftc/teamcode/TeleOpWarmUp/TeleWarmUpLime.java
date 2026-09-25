@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
-import org.firstinspires.ftc.teamcode.UsualFunctions;
+import org.firstinspires.ftc.teamcode.Another_Codes.UsualFunctions;
 
 import java.util.List;
 

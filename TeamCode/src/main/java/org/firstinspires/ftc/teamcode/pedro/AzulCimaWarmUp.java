@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.UsualFunctions;
+import org.firstinspires.ftc.teamcode.Another_Codes.UsualFunctions;
 
 import java.util.List;
 

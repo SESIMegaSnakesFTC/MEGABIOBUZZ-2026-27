@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Another_Codes;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -80,11 +80,9 @@ public class UsualFunctions extends LinearOpMode {
 
 
     //Ramp Servo
-    public final float RampCatchPos = 0.7f, RampClosedPos = 0.5f;
+    public final float RampCatchPos = 0.85f, RampClosedPos = 0.47f;
 
 
-    //Gate Servo
-    private Servo GateServo;
 
 
     //MEDIDAS PARA ATIRAR PRECISAMENTE

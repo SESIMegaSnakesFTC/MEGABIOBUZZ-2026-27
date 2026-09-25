@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.PIDS;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -7,17 +7,20 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Shooter PIDF Tuning", group = "Tuning")
-public class PIDFTTUNING extends LinearOpMode {
+public class TunningShooters extends LinearOpMode {
 
-    private DcMotorEx shooter;
-    private DcMotorEx intake;
-    private DcMotorEx leftshoot, rightShooter, midTake;
+
+
+
+    DcMotor intake;
+    DcMotorEx leftshoot, rightShooter;
+    DcMotor midTake;
 
     // =========================
     // VALORES INICIAIS
     // =========================
 
-    double targetVelocity = 1175;
+    double targetVelocity = 1455;
 
     double P = 50;
     double F = 15;
@@ -39,15 +42,14 @@ public class PIDFTTUNING extends LinearOpMode {
 
         leftshoot = hardwareMap.get(DcMotorEx.class, "leftShooter");
         rightShooter = hardwareMap.get(DcMotorEx.class, "rightShooter");
+        intake = hardwareMap.get(DcMotor.class, "feeder");
+        midTake = hardwareMap.get(DcMotor.class, "midTake");
 
-        intake = hardwareMap.get(DcMotorEx.class, "feeder");
-        midTake = hardwareMap.get(DcMotorEx.class, "midTake");
 
-
-        leftshoot.setDirection(DcMotor.Direction.REVERSE);
-        rightShooter.setDirection(DcMotor.Direction.FORWARD);
+        leftshoot.setDirection(DcMotor.Direction.FORWARD);
+        rightShooter.setDirection(DcMotor.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.FORWARD);
-        midTake.setDirection(DcMotor.Direction.FORWARD);
+        midTake.setDirection(DcMotor.Direction.REVERSE);
 
         leftshoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -56,20 +58,11 @@ public class PIDFTTUNING extends LinearOpMode {
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         midTake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+
+
         // Começam desligados
         intake.setPower(0);
         leftshoot.setPower(0);
-
-        // =========================
-        // PIDF
-        // =========================
-
-        shooter.setVelocityPIDFCoefficients(
-                P,
-                0,
-                0,
-                F
-        );
 
         telemetry.addLine("SHOOTER PIDF TUNING");
         telemetry.addLine("-------------------");
@@ -91,11 +84,12 @@ public class PIDFTTUNING extends LinearOpMode {
         boolean lastX = false;
         boolean lastY = false;
         boolean lastStart = false;
+        boolean lastRT = false;
 
         while (opModeIsActive()) {
 
             // ==========================================
-            // VELOCIDADE
+            //              VELOCIDADE
             // ==========================================
 
             boolean up = gamepad1.dpad_up;
@@ -161,23 +155,34 @@ public class PIDFTTUNING extends LinearOpMode {
             if (F < 0)
                 F = 0;
 
+            boolean RT = gamepad2.right_trigger>0.5;
+
+
             // ==========================================
             // APLICA PIDF
             // ==========================================
+            if (RT && !lastRT){
 
-            rightShooter.setVelocityPIDFCoefficients(
-                    P,
-                    0,
-                    0,
-                    F
-            );
+                rightShooter.setVelocityPIDFCoefficients(
+                        50,
+                        0,
+                        0,
+                        16.5
+                );
 
-            leftshoot.setVelocityPIDFCoefficients(
-                    P,
-                    0,
-                    0,
-                    F
-            );
+                leftshoot.setVelocityPIDFCoefficients(
+                        50,
+                        0,
+                        0,
+                        19.87
+                );
+
+                idle();
+
+                midTake.setPower(1.0);
+            }
+
+
 
             // ==========================================
             // RODA O SHOOTER
@@ -194,19 +199,20 @@ public class PIDFTTUNING extends LinearOpMode {
             if (gamepad1.right_bumper) {
 
                 intake.setPower(1.0);
-                midTake.setPower(0.35);
+
 
             } else {
 
                 intake.setPower(0);
-                midTake.setPower(0);
+
             }
 
             // ==========================================
             // TELEMETRY
             // ==========================================
 
-            double currentVelocity = shooter.getVelocity();
+            double currentVelocityLeft = leftshoot.getVelocity();
+            double currentVelocityRight = rightShooter.getVelocity();
 
             telemetry.addLine("===== SHOOTER TUNING =====");
 
@@ -217,10 +223,17 @@ public class PIDFTTUNING extends LinearOpMode {
             );
 
             telemetry.addData(
-                    "Current Velocity",
+                    "Current VelocityLeft",
                     "%.0f",
-                    currentVelocity
+                    currentVelocityLeft
             );
+
+            telemetry.addData(
+                    "Current Velocity Right",
+                    "%.0f",
+                    currentVelocityRight
+            );
+
 
             telemetry.addLine("");
 
@@ -232,9 +245,15 @@ public class PIDFTTUNING extends LinearOpMode {
             telemetry.addLine("");
 
             telemetry.addData(
-                    "Erro",
+                    "Erro Esquerdo",
                     "%.0f",
-                    targetVelocity - currentVelocity
+                    targetVelocity - currentVelocityLeft
+            );
+
+            telemetry.addData(
+                    "Erro Direito",
+                    "%.0f",
+                    targetVelocity - currentVelocityRight
             );
 
             telemetry.addLine("");
@@ -263,10 +282,10 @@ public class PIDFTTUNING extends LinearOpMode {
             lastA = a;
             lastB = b;
 
-            lastX = x;
             lastY = y;
 
             lastStart = start;
+            lastX = x;
 
             // ==========================================
             // DELAY
@@ -277,6 +296,10 @@ public class PIDFTTUNING extends LinearOpMode {
             while (timer.milliseconds() < 20 && opModeIsActive()) {
                 idle();
             }
+
+
+
+
         }
 
         // ==========================================

@@ -1,24 +1,25 @@
-package org.firstinspires.ftc.teamcode.pedro;
+package org.firstinspires.ftc.teamcode.pedro.WarmUp_WithoutPedro;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
-import org.firstinspires.ftc.teamcode.UsualFunctions;
+
+import org.firstinspires.ftc.teamcode.Another_Codes.UsualFunctions;
 
 import java.util.List;
 
 
 @Autonomous(name = "VermelhoCimaAutonomo", group = "Autonomous")
-public class VermelhoCimaWhithoutPedro extends LinearOpMode {
+public class VermelhoCimaAzulBaixo extends LinearOpMode {
 
     private DcMotor leftFront, leftBack, rightFront, rightBack;
 
@@ -27,7 +28,7 @@ public class VermelhoCimaWhithoutPedro extends LinearOpMode {
     private DcMotor feeder, midTake;
     private Servo RampServo;
     private IMU imu;
-    private GeralShooterConfig shooters;
+    private DcMotorEx leftShooter, rightShooter;
 
     UsualFunctions func = new UsualFunctions();
 
@@ -46,15 +47,19 @@ public class VermelhoCimaWhithoutPedro extends LinearOpMode {
         while (opModeIsActive()){
 
             feeder.setPower(0.9);
-            shooters.setTargetVelocity(1367);
-            shooters.update();
-            midTake.setPower(0.9);
-            sleep(2700);
-            shooters.stop();
+            leftShooter.setVelocityPIDFCoefficients(51, 0, 0, 19.87);
+            rightShooter.setVelocityPIDFCoefficients(51, 0,0, 16.54);
+            leftShooter.setVelocity(1590);
+            rightShooter.setVelocity(1590);
+            sleep(500);
+            midTake.setPower(-0.7);
+            sleep(3000);
+            leftShooter.setVelocity(0);
+            rightShooter.setVelocity(0);
             midTake.setPower(0);
 
             driveMecanum(0, 0.5, 0);
-            sleep(450);
+            sleep(700);
             StopAll();
             driveMecanum(1, 0, 0);
             sleep(1500);
@@ -93,6 +98,9 @@ public class VermelhoCimaWhithoutPedro extends LinearOpMode {
         leftBack   = hardwareMap.get(DcMotor.class, "leftBack");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack  = hardwareMap.get(DcMotor.class, "rightBack");
+        leftShooter = hardwareMap.get(DcMotorEx.class, "leftShooter");
+        rightShooter = hardwareMap.get(DcMotorEx.class, "rightShooter");
+        rightShooter.setDirection(DcMotor.Direction.REVERSE);
 
         rightFront.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
