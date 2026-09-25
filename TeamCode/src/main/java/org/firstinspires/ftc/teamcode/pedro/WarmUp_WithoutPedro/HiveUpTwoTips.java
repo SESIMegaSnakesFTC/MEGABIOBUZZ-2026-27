@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.pedro;
+package org.firstinspires.ftc.teamcode.pedro.WarmUp_WithoutPedro;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import java.util.List;
 
 
-@Autonomous(name = "VermelhoBaixo/AzulCima", group = "Autonomous")
-public class VermelhoBaixoAzulCimaWarmUp extends LinearOpMode {
+@Autonomous(name = "HiveUpTwoTips", group = "Autonomous")
+public class HiveUpTwoTips extends LinearOpMode {
 
     private DcMotor leftFront, leftBack, rightFront, rightBack;
 
@@ -42,20 +42,38 @@ public class VermelhoBaixoAzulCimaWarmUp extends LinearOpMode {
             sleep(180);
             midTake.setPower(0.467);
             feeder.setPower(0.7);
-            sleep(2700);
+            sleep(3200);
             StopAllShooter();
 
             driveMecanum(0, 0.5, 0);
             sleep(600);
             StopAll();
-            driveMecanum(-0.5,0,0);
-            sleep(1100);
+
+            //VIRANDO UNS 90 GRAUS
+            driveMecanum(0,0,-0.5);
+            sleep(700);
             StopAll();
-            driveMecanum(0, 0.7, 0);
-            sleep(1680);
+
+
+            //ENCOSTAR NA PAREDE
+            driveMecanum(-0.35, 0.5, 0);
+            sleep(780);
             StopAll();
-            driveMecanum(-0.5,0,0);
-            sleep(920);
+
+
+            //PEGAR PÓLEN
+            feeder.setPower(0.87);
+            midTake.setPower(0.6);
+            driveMecanum(0, 0.5, 0);
+            sleep(1120);
+            StopAll();
+            sleep(700);
+            StopAllShooter();
+
+
+            //   'Ré' ATÉ O CENTRO
+            driveMecanum(0.125, -0.5, 0);
+            sleep(1400);
             StopAll();
 
 
@@ -117,11 +135,10 @@ public class VermelhoBaixoAzulCimaWarmUp extends LinearOpMode {
     }
 
     private void StopAllShooter(){
-        leftShooter.setVelocityPIDFCoefficients(0,0,0,0);
-        rightShooter.setVelocityPIDFCoefficients(0,0,0,0);
         rightShooter.setVelocity(0);
         leftShooter.setVelocity(0);
         midTake.setPower(0);
+        feeder.setPower(0);
     }
 
 

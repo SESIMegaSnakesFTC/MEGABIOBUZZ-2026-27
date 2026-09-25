@@ -18,8 +18,8 @@ import org.firstinspires.ftc.teamcode.Another_Codes.UsualFunctions;
 import java.util.List;
 
 
-@Autonomous(name = "VermelhoCimaAutonomo", group = "Autonomous")
-public class VermelhoCimaAzulBaixo extends LinearOpMode {
+@Autonomous(name = "HiveDownOneTip", group = "Autonomous")
+public class HiveDownOneTip extends LinearOpMode {
 
     private DcMotor leftFront, leftBack, rightFront, rightBack;
 
@@ -53,7 +53,7 @@ public class VermelhoCimaAzulBaixo extends LinearOpMode {
             rightShooter.setVelocity(1590);
             sleep(500);
             midTake.setPower(-0.7);
-            sleep(3000);
+            sleep(3200);
             leftShooter.setVelocity(0);
             rightShooter.setVelocity(0);
             midTake.setPower(0);
@@ -61,15 +61,10 @@ public class VermelhoCimaAzulBaixo extends LinearOpMode {
             driveMecanum(0, 0.5, 0);
             sleep(700);
             StopAll();
-            driveMecanum(1, 0, 0);
-            sleep(1500);
-
-
+            driveMecanum(0.9, 0, 0);
+            sleep(1300);
 
         }
-
-
-
     }
 
     private void driveMecanum(double strafe, double drive, double turn) {

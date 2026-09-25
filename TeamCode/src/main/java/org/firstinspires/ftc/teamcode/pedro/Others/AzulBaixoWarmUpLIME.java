@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.pedro;
+package org.firstinspires.ftc.teamcode.pedro.Others;
 
 import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
 import org.firstinspires.ftc.teamcode.Another_Codes.UsualFunctions;
+import org.firstinspires.ftc.teamcode.pedro.constant;
 
 
 class PathAzulBaixoWarmUpLIME {

@@ -61,8 +61,6 @@ public class Mecanismos {
 
             LeftErro  = targetvelocity - leftShooter.getVelocity();
             RightErro = targetvelocity - rightShooter.getVelocity();
-
-
         }
         else{
 

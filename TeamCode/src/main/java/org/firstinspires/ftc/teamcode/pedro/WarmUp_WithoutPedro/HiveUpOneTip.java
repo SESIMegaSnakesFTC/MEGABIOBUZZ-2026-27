@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import java.util.List;
 
 
-@Autonomous(name = "VermelhoCima/AzulBaixo", group = "Autonomous")
-public class VermelhoCimaBaixoAzulWarmUp extends LinearOpMode {
+@Autonomous(name = "HiveUpOneTip", group = "Autonomous")
+public class HiveUpOneTip extends LinearOpMode {
 
     private DcMotor leftFront, leftBack, rightFront, rightBack;
 
@@ -35,31 +35,31 @@ public class VermelhoCimaBaixoAzulWarmUp extends LinearOpMode {
 
         if (opModeIsActive()){
 
-
-            sleep(8067);
-            leftShooter.setVelocityPIDFCoefficients(60.2, 0, 0, 19.89);
-            rightShooter.setVelocityPIDFCoefficients(60.2, 0,0,16.5);
-            leftShooter.setVelocity(1579);
-            rightShooter.setVelocity(1579);
-            sleep(160);
+            leftShooter.setVelocityPIDFCoefficients(60, 0, 0, 19.89);
+            rightShooter.setVelocityPIDFCoefficients(60, 0,0,16.5);
+            leftShooter.setVelocity(1489);
+            rightShooter.setVelocity(1489);
+            sleep(180);
             midTake.setPower(0.467);
             feeder.setPower(0.7);
-            sleep(2700);
+            sleep(3200);
             StopAllShooter();
 
             driveMecanum(0, 0.5, 0);
             sleep(600);
             StopAll();
-            driveMecanum(0.5,0,0);
-            sleep(1900);
+            driveMecanum(-0.5,0,0);
+            sleep(1100);
+            StopAll();
+            driveMecanum(0, 0.7, 0);
+            sleep(1680);
+            StopAll();
+            driveMecanum(-0.5,0,0);
+            sleep(920);
             StopAll();
 
 
         }
-
-
-
-
     }
 
     private void driveMecanum(double strafe, double drive, double turn) {

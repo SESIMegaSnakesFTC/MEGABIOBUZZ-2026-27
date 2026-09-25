@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.pedro;
+package org.firstinspires.ftc.teamcode.pedro.Others;
 
 import static com.pedropathing.api.Paths.*;
 import com.pedropathing.api.PoseFactory;
@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Another_Codes.UsualFunctions;
+import org.firstinspires.ftc.teamcode.pedro.constant;
 
 import java.util.List;
 

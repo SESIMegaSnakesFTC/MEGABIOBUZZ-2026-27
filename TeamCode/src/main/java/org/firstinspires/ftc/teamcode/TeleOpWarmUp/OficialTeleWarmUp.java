@@ -68,8 +68,6 @@ public class OficialTeleWarmUp extends LinearOpMode {
             lastX = X;
 
             telemetry.addData("Ramp STATUS", X_ON ? "ABERTA" : "FECHADA");
-            telemetry.addData("Erro Esquerdo", mech.LeftErro);
-            telemetry.addData("Erro Direito", mech.RightErro);
             telemetry.update();
 
         }
