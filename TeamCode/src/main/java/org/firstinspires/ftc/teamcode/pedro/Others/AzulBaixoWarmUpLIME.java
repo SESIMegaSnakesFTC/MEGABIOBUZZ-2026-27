@@ -15,8 +15,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
-import org.firstinspires.ftc.teamcode.Another_Codes.UsualFunctions;
 import org.firstinspires.ftc.teamcode.pedro.constant;
 
 
@@ -67,7 +65,6 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
 
     //MECH
 
-    private GeralShooterConfig shooters;
     private DcMotor feeder = null, MidTakeMech = null;
     private Servo RampServo = null;
 
@@ -85,7 +82,6 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
 
         initHardware();
 
-        shooters = new GeralShooterConfig(hardwareMap);
 
         follower = constant.create(hardwareMap);
         follower.setPose(pathAzulBaixoWarmUp.start);
@@ -103,13 +99,13 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
         //Tracking da Limelight
         Func.LimelightTrakingServo(limelight3A, false, LimeServo);
         Func.getCurrentPositionServoLimelight(LimeServo);
-        Func.DoAction(AutoAction, shooters, feeder); AutoAction = UsualFunctions.CurrentAction.FEED;
+
         seguirPath(pathAzulBaixoWarmUp.path1());
         RampServo.setPosition(Func.RampCatchPos);
 
 
         seguirPath(pathAzulBaixoWarmUp.path2());
-        Func.DoAction(AutoAction, shooters, feeder); AutoAction = UsualFunctions.CurrentAction.SHOOT;
+
 
 
         seguirPath(pathAzulBaixoWarmUp.path3());
@@ -119,7 +115,7 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
         seguirPath(pathAzulBaixoWarmUp.path4());
         Func.LimelightTrakingServo(limelight3A, false, LimeServo);
         RampServo.setPosition(Func.RampClosedPos);
-        Func.DoAction(AutoAction, shooters, feeder);
+
 
         seguirPath(pathAzulBaixoWarmUp.path5());
 

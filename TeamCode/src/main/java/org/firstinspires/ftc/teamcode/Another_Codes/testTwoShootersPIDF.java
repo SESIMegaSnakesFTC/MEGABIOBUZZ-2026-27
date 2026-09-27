@@ -6,15 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.PIDS.GeralShooterConfig;
-
 @Disabled
 @TeleOp(name = "testTwoShooters", group = "TeleOp")
 public class testTwoShootersPIDF extends LinearOpMode {
 
     private DcMotor MidTake, feeder;
     private Servo rampServo;
-    private GeralShooterConfig shooters;
 
     boolean LastY = false, LastX = false;
     boolean STATUSA = false, STATUSX = false;
@@ -30,7 +27,6 @@ public class testTwoShootersPIDF extends LinearOpMode {
         feeder    = hardwareMap.get(DcMotor.class, "feeder");
         rampServo = hardwareMap.get(Servo.class, "rampServo");
 
-        shooters = new GeralShooterConfig(hardwareMap);
 
         rampServo.setPosition(Func.RampClosedPos);
         MidTake.setDirection(DcMotor.Direction.REVERSE);
@@ -79,19 +75,10 @@ public class testTwoShootersPIDF extends LinearOpMode {
 
             rampServo.setPosition(STATUSX ? Func.RampCatchPos : Func.RampClosedPos);
 
-            if (STATUSA){
-                shooters.setTargetVelocity(TARGET_TICKS_PER_SEC);
-                shooters.update();
-            } else {
-                shooters.stop();
-            }
-
             LastY = Y;
             LastX = X;
 
             telemetry.addData("potencia", potencia);
-            telemetry.addData("leftVel", shooters.getLeftVelocity());
-            telemetry.addData("rightVel", shooters.getRightVelocity());
             telemetry.update();
         }
     }

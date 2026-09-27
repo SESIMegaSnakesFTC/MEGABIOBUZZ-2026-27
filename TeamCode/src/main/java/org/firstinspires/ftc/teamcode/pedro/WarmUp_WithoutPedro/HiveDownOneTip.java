@@ -7,13 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-
-import org.firstinspires.ftc.teamcode.Another_Codes.UsualFunctions;
 
 import java.util.List;
 
@@ -26,16 +22,11 @@ public class HiveDownOneTip extends LinearOpMode {
         //MECH
 
     private DcMotor feeder, midTake;
-    private Servo RampServo;
     private IMU imu;
     private DcMotorEx leftShooter, rightShooter;
 
-    UsualFunctions func = new UsualFunctions();
-
 
     public void runOpMode(){
-
-        RampServo.setPosition(func.RampCatchPos);
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
@@ -44,25 +35,29 @@ public class HiveDownOneTip extends LinearOpMode {
         INIT();
 
 
-        while (opModeIsActive()){
+        waitForStart();
 
+        if (opModeIsActive()){
+
+
+            sleep(7567);
             feeder.setPower(0.9);
-            leftShooter.setVelocityPIDFCoefficients(51, 0, 0, 19.87);
-            rightShooter.setVelocityPIDFCoefficients(51, 0,0, 16.54);
-            leftShooter.setVelocity(1590);
-            rightShooter.setVelocity(1590);
-            sleep(500);
-            midTake.setPower(-0.7);
+            leftShooter.setVelocityPIDFCoefficients(60.1, 0, 0, 19.89);
+            rightShooter.setVelocityPIDFCoefficients(60.1, 0,0, 16.5);
+            leftShooter.setVelocity(1510);
+            rightShooter.setVelocity(1510);
+            sleep(300);
+            midTake.setPower(0.667);
             sleep(3200);
             leftShooter.setVelocity(0);
             rightShooter.setVelocity(0);
             midTake.setPower(0);
 
             driveMecanum(0, 0.5, 0);
-            sleep(700);
+            sleep(800);
             StopAll();
-            driveMecanum(0.9, 0, 0);
-            sleep(1300);
+            driveMecanum(0.5, 0, 0);
+            sleep(1800);
 
         }
     }
@@ -112,7 +107,6 @@ public class HiveDownOneTip extends LinearOpMode {
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         midTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        RampServo = hardwareMap.get(Servo.class, "rightRampServo");
 
         imu = hardwareMap.get(IMU.class, "imu");
 
@@ -153,9 +147,6 @@ public class HiveDownOneTip extends LinearOpMode {
             }
 
             driveMecanum(0, 0, potenciaTurn);
-
-            telemetry.addData("Giro IMU", "Alvo: %.1f | Atual: %.1f | Erro: %.1f", anguloAlvo, anguloAtual, erro);
-            telemetry.update();
         }
 
         StopAll();

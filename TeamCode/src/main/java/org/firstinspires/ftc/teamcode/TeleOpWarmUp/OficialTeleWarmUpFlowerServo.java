@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.TeleOpWarmUp;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 import org.firstinspires.ftc.teamcode.Mech.Chassi;
 import org.firstinspires.ftc.teamcode.Mech.Mecanismos;
@@ -10,8 +11,8 @@ import org.firstinspires.ftc.teamcode.Mech.Mecanismos;
 import java.util.List;
 
 
-@TeleOp(name = "TeleOpWarmUp", group = "TeleOp")
-public class OficialTeleWarmUp extends LinearOpMode {
+@TeleOp(name = "TeleOpWarmUpFlowerServo", group = "TeleOp")
+public class OficialTeleWarmUpFlowerServo extends LinearOpMode {
 
     boolean lastRT = false, RT_ON = false;
     boolean lastX = false, X_ON = true;
@@ -20,10 +21,10 @@ public class OficialTeleWarmUp extends LinearOpMode {
 
 
     //INSTÂNCIA PARA IMPORT'S(Bastante)
-
+    
     private final Chassi chassi = new Chassi();
     private final Mecanismos mech = new Mecanismos();
-
+    private CRServo ServoFlower;
 
 
     @Override
@@ -62,7 +63,7 @@ public class OficialTeleWarmUp extends LinearOpMode {
 
             mech.feed(LT, LB);
             X_ON = mech.X_ON(X, lastX, X_ON);
-
+            mech.setFlowerServo(Y, ServoFlower);
 
 
             mech.setMidTakePlayer1(RB1);

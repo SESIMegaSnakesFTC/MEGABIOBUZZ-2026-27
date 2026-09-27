@@ -35,12 +35,12 @@ public class HiveUpOneTip extends LinearOpMode {
 
         if (opModeIsActive()){
 
-            leftShooter.setVelocityPIDFCoefficients(60, 0, 0, 19.89);
-            rightShooter.setVelocityPIDFCoefficients(60, 0,0,16.5);
-            leftShooter.setVelocity(1489);
-            rightShooter.setVelocity(1489);
+            leftShooter.setVelocityPIDFCoefficients(60.5, 0, 0, 19.89);
+            rightShooter.setVelocityPIDFCoefficients(60.5, 0,0,16.67);
+            leftShooter.setVelocity(1567);
+            rightShooter.setVelocity(1567);
             sleep(180);
-            midTake.setPower(0.467);
+            midTake.setPower(0.667);
             feeder.setPower(0.7);
             sleep(3200);
             StopAllShooter();
@@ -51,11 +51,11 @@ public class HiveUpOneTip extends LinearOpMode {
             driveMecanum(-0.5,0,0);
             sleep(1100);
             StopAll();
-            driveMecanum(0, 0.7, 0);
-            sleep(1680);
+            driveMecanum(0, 0.5, 0);
+            sleep(1780);
             StopAll();
-            driveMecanum(-0.5,0,0);
-            sleep(920);
+            driveMecanum(-0.5, 0, 0);
+            sleep(300);
             StopAll();
 
 

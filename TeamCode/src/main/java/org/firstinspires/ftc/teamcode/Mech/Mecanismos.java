@@ -1,27 +1,35 @@
 package org.firstinspires.ftc.teamcode.Mech;
 
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Mecanismos {
 
-    private Servo rampServo;
     private DcMotor feeder, midTake;
     private DcMotorEx leftShooter, rightShooter;
     private final double targetvelocity = 1560;
 
     public double LeftErro = 0, RightErro = 0;
 
-    double RampCatchPos = 0.85f, RampClosedPos = 0.47f;
+    enum LimeStatus { CATCH, RIGHT, LEFT, NONE}
+    LimeStatus act = LimeStatus.NONE;
 
+    double AligmentTurret = 0.08;
+
+    // Init's for mech devices
 
     public void init(HardwareMap hardwareMap){
 
-        rampServo    = hardwareMap.get(Servo.class, "rightRampServo");
         feeder       = hardwareMap.get(DcMotor.class, "feeder");
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -33,11 +41,34 @@ public class Mecanismos {
         rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         midTake      = hardwareMap.get(DcMotor.class, "midTake");
-        midTake.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        rampServo.setPosition(RampCatchPos);
 
     }
+
+    public void IMU_init(HardwareMap hardmap){
+
+        IMU imu;
+        imu = hardmap.get(IMU.class, "imu");
+
+        RevHubOrientationOnRobot orientationOnRobot =
+              new RevHubOrientationOnRobot(
+                      RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                      RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
+              );
+
+    }
+    public void Limelight_init(HardwareMap hardwareMap){
+
+        Limelight3A limelight3A;
+        limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight3A.start();
+        limelight3A.setPollRateHz(75);
+        limelight3A.pipelineSwitch(8);
+    }
+
+
+
+    //===============================================================================
 
     public boolean RT_ON(boolean RT, boolean lastRT, boolean RT_ON){
 
@@ -53,9 +84,9 @@ public class Mecanismos {
         if (RT_ON){
 
 
-            leftShooter.setVelocityPIDFCoefficients(60, 0, 0, 19.89);
+            leftShooter.setVelocityPIDFCoefficients(60.5, 0, 0, 19.89);
             leftShooter.setVelocity(targetvelocity);
-            rightShooter.setVelocityPIDFCoefficients(60, 0,0, 16.5);
+            rightShooter.setVelocityPIDFCoefficients(60.5, 0,0, 16.67);
             rightShooter.setVelocity(targetvelocity);
 
 
@@ -64,13 +95,15 @@ public class Mecanismos {
         }
         else{
 
-            StopAll();
+            StopAllShooters();
+
 
         }
 
 
     }
-    public void StopAll(){
+
+    public void StopAllShooters(){
         leftShooter.setVelocityPIDFCoefficients(0,0,0,0);
         rightShooter.setVelocityPIDFCoefficients(0,0,0,0);
         rightShooter.setVelocity(0);
@@ -103,17 +136,7 @@ public class Mecanismos {
 
 
     }
-    public void setRampServo(boolean X_ON){
 
-        if (X_ON){
-
-            rampServo.setPosition(RampCatchPos);
-        }
-        else{
-            rampServo.setPosition(RampClosedPos);
-        }
-
-    }
 
     public boolean Y_ON(boolean Y, boolean lastY, boolean Y_ON){
 
@@ -129,7 +152,7 @@ public class Mecanismos {
     public void setMidTake(boolean Y_ON){
 
         if (Y_ON){
-            midTake.setPower(-0.68);
+            midTake.setPower(0.3867);
         }
         else{
            midTake.setPower(0);
@@ -151,14 +174,63 @@ public class Mecanismos {
     public void setMidTakePlayer1(boolean RB1){
 
         if (RB1){
-            midTake.setPower(-0.7);
+            midTake.setPower(0.67);
         }
         else{
             midTake.setPower(0);
         }
     }
 
+    public void setFlowerServo(boolean Y, CRServo servoFlower){
+        if (Y){
+
+            servoFlower.setPower(0.8);
+        }
+        else{
+            servoFlower.setPower(0);
+        }
+    }
+
+    public void Trackinglimelight(Servo TurretServo, LLResult result, Gamepad gamepad2){
+
+        if (result != null && result.isValid()){
+
+            act = result.getTx() < -5 ? LimeStatus.LEFT :
+                    (result.getTx() > 5 ? LimeStatus.RIGHT : LimeStatus.CATCH);
+        }else{
+            act = LimeStatus.NONE;
+        }
 
 
+
+        switch (act){
+
+
+            case CATCH:
+                gamepad2.rumble(0.5, 0.5, 500);
+                rightShooter.setVelocityPIDFCoefficients(60.5, 0, 0, 19.89);
+                leftShooter.setVelocityPIDFCoefficients(60.5, 0, 0, 16.67);
+                break;
+
+            case LEFT:
+                TurretServo.setPosition(turretCurrentPos(TurretServo) - AligmentTurret);
+                break;
+
+            case RIGHT:
+                TurretServo.setPosition(turretCurrentPos(TurretServo) + AligmentTurret);
+                break;
+
+            case NONE:
+                break;
+
+        }
+    }
+
+    public double turretCurrentPos(Servo Turret){ return Turret.getPosition(); }
+
+    public double GetShooterRPM(LLResult result){
+
+
+    }
 
 }
