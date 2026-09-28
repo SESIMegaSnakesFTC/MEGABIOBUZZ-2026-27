@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 
 import org.firstinspires.ftc.teamcode.Mech.Chassi;
-import org.firstinspires.ftc.teamcode.Mech.Mecanismos;
 
 import java.util.List;
 

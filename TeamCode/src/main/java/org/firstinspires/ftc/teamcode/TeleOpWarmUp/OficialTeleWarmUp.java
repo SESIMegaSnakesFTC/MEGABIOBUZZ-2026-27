@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Mech.Chassi;
-import org.firstinspires.ftc.teamcode.Mech.Mecanismos;
 
 import java.util.List;
 
@@ -35,43 +34,7 @@ public class OficialTeleWarmUp extends LinearOpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        chassi.init(hardwareMap);
-
-        mech.init(hardwareMap);
-
-        waitForStart();
-
-        while (opModeIsActive()) {
-
-            double x = gamepad1.left_stick_x, y = -gamepad1.left_stick_y, rx = gamepad1.right_stick_x;
-
-            boolean Y = gamepad1.y;
-            boolean RT = gamepad2.right_trigger > 0.5;
-            boolean LT = gamepad2.left_trigger > 0.5, LB = gamepad2.left_bumper;
-            boolean X = gamepad2.x;
-            boolean B = gamepad2.b;
-            boolean RB1 = gamepad1.right_bumper;
 
 
-            chassi.drive(x, y, rx);
-
-            //BUTTON
-            B_ON = mech.B_ON(B, lastB, B_ON);
-            RT_ON = mech.RT_ON(RT, lastRT, RT_ON);
-            mech.setShooters(RT_ON);
-
-            mech.feed(LT, LB);
-            X_ON = mech.X_ON(X, lastX, X_ON);
-
-
-
-            mech.setMidTakePlayer1(RB1);
-
-
-            lastRT = RT;
-            lastX = X;
-
-
-        }
     }
 }

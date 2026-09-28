@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Mech.Mecanismos;
-
 @TeleOp(name = "Shooter PIDF Tuning", group = "Tuning")
 public class TunningShooters extends LinearOpMode {
 
