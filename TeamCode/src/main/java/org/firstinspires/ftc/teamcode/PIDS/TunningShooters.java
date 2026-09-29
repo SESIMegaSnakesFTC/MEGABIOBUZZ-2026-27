@@ -58,8 +58,7 @@ public class TunningShooters extends LinearOpMode {
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         midTake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-         Mecanismos mech =new
-                Mecanismos();
+
 
         // Começam desligados
         intake.setPower(0);
@@ -95,7 +94,7 @@ public class TunningShooters extends LinearOpMode {
 
             boolean up = gamepad1.dpad_up;
             boolean down = gamepad1.dpad_down;
-            boolean RB = gamepad1.right_bumper;
+
 
             if (up && !lastUp) {
                 targetVelocity += velocityStep;
@@ -184,7 +183,6 @@ public class TunningShooters extends LinearOpMode {
                 midTake.setPower(1.0);
             }
 
-            mech.setMidTakePlayer1(RB);
 
 
             // ==========================================

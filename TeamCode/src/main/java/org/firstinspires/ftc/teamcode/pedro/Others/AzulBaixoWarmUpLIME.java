@@ -56,7 +56,7 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
 
     //ACTIONS
 
-    private UsualFunctions.CurrentAction AutoAction = UsualFunctions.CurrentAction.INIT_SHOOT;
+
 
     private Follower follower;
     private final PathAzulBaixoWarmUpLIME pathAzulBaixoWarmUp = new PathAzulBaixoWarmUpLIME();
@@ -69,7 +69,7 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
     private Servo RampServo = null;
 
     // IMPORT's
-    private UsualFunctions Func = new UsualFunctions();
+
 
 
 
@@ -88,7 +88,7 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
 
         //>>>RAMPA FECHADA<<<
 
-        RampServo.setPosition(Func.RampClosedPos);
+
 
         waitForStart();
 
@@ -97,11 +97,10 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
         }
 
         //Tracking da Limelight
-        Func.LimelightTrakingServo(limelight3A, false, LimeServo);
-        Func.getCurrentPositionServoLimelight(LimeServo);
+
 
         seguirPath(pathAzulBaixoWarmUp.path1());
-        RampServo.setPosition(Func.RampCatchPos);
+
 
 
         seguirPath(pathAzulBaixoWarmUp.path2());
@@ -109,12 +108,11 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
 
 
         seguirPath(pathAzulBaixoWarmUp.path3());
-        RampServo.setPosition(Func.RampClosedPos);
+
 
 
         seguirPath(pathAzulBaixoWarmUp.path4());
-        Func.LimelightTrakingServo(limelight3A, false, LimeServo);
-        RampServo.setPosition(Func.RampClosedPos);
+
 
 
         seguirPath(pathAzulBaixoWarmUp.path5());
@@ -139,6 +137,6 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
         RampServo   = hardwareMap.get(Servo.class, "rampServo");
         limelight3A = hardwareMap.get(Limelight3A.class, " limelight");
         LimeServo   = hardwareMap.get(Servo.class, "limeServo");
-        RampServo.setPosition(Func.RampClosedPos);
+
     }
 }

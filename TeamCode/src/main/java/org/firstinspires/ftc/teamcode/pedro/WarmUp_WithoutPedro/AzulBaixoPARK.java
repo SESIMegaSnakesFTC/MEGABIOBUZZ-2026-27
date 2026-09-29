@@ -22,7 +22,6 @@ public class AzulBaixoPARK extends LinearOpMode {
     private IMU imu;
     private DcMotorEx leftShooter, rightShooter;
 
-    UsualFunctions func = new UsualFunctions();
 
 
     public void runOpMode(){

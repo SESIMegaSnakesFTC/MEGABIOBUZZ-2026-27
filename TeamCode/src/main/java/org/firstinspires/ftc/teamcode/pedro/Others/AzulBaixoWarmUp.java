@@ -55,7 +55,7 @@ public class AzulBaixoWarmUp extends LinearOpMode {
 
     //ACTIONS
 
-    private UsualFunctions.CurrentAction AutoAction = UsualFunctions.CurrentAction.INIT_SHOOT;
+
 
     private Follower follower;
     private final PathAzulBaixoWarmUp pathAzulBaixoWarmUp = new PathAzulBaixoWarmUp();
@@ -66,7 +66,7 @@ public class AzulBaixoWarmUp extends LinearOpMode {
     private Servo RampServo = null;
 
             // IMPORT's
-    private UsualFunctions Func = new UsualFunctions();
+
 
 
 
@@ -85,7 +85,6 @@ public class AzulBaixoWarmUp extends LinearOpMode {
 
         //>>>RAMPA FECHADA<<<
 
-        RampServo.setPosition(Func.RampClosedPos);
 
         waitForStart();
 
@@ -94,7 +93,6 @@ public class AzulBaixoWarmUp extends LinearOpMode {
         }
 
         seguirPath(pathAzulBaixoWarmUp.path1());
-        RampServo.setPosition(Func.RampCatchPos);
 
 
         seguirPath(pathAzulBaixoWarmUp.path2());
@@ -102,7 +100,6 @@ public class AzulBaixoWarmUp extends LinearOpMode {
 
 
         seguirPath(pathAzulBaixoWarmUp.path3());
-        RampServo.setPosition(Func.RampClosedPos);
 
 
         seguirPath(pathAzulBaixoWarmUp.path4());
@@ -128,6 +125,5 @@ public class AzulBaixoWarmUp extends LinearOpMode {
         feeder      = hardwareMap.get(DcMotor.class, "feeder" );
         MidTakeMech = hardwareMap.get(DcMotor.class, "midTake");
         RampServo = hardwareMap.get(Servo.class, "rampServo");
-        RampServo.setPosition(Func.RampClosedPos);
     }
 }

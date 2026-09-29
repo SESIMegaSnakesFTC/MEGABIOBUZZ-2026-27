@@ -75,7 +75,7 @@ public class AzulCimaWarmUp extends LinearOpMode {
 
 
     //IMPORT's
-    private UsualFunctions functions  = new UsualFunctions();
+
 
 
     public void runOpMode(){
@@ -119,8 +119,7 @@ public class AzulCimaWarmUp extends LinearOpMode {
         R_Shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         midTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        //RAMPA FECHADA
-        RampServo.setPosition(functions.RampClosedPos);
+
 
     }
     private void seguirPath(Path path){

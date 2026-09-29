@@ -14,9 +14,9 @@ public class midTake {
 
     }
 
-    public void Spin(boolean RTp1, boolean Yp2){
+    public void Spin(boolean RBp1, boolean Yp2){
 
-        if (RTp1 || Yp2){
+        if (RBp1 || Yp2){
             MidTake.setPower(0.4);
         }
         else{

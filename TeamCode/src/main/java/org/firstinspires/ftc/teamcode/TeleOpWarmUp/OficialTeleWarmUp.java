@@ -21,7 +21,7 @@ public class OficialTeleWarmUp extends LinearOpMode {
     //INSTÂNCIA PARA IMPORT'S(Bastante)
 
     private final Chassi chassi = new Chassi();
-    private final Mecanismos mech = new Mecanismos();
+
 
 
 

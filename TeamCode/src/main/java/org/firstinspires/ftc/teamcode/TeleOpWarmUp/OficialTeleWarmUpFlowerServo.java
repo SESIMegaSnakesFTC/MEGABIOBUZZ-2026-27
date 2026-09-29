@@ -22,7 +22,6 @@ public class OficialTeleWarmUpFlowerServo extends LinearOpMode {
     //INSTÂNCIA PARA IMPORT'S(Bastante)
     
     private final Chassi chassi = new Chassi();
-    private final Mecanismos mech = new Mecanismos();
     private CRServo ServoFlower;
 
 
@@ -37,7 +36,7 @@ public class OficialTeleWarmUpFlowerServo extends LinearOpMode {
 
         chassi.init(hardwareMap);
 
-        mech.init(hardwareMap);
+
 
         waitForStart();
 
@@ -56,16 +55,7 @@ public class OficialTeleWarmUpFlowerServo extends LinearOpMode {
             chassi.drive(x, y, rx);
 
             //BUTTON
-            B_ON = mech.B_ON(B, lastB, B_ON);
-            RT_ON = mech.RT_ON(RT, lastRT, RT_ON);
-            mech.setShooters(RT_ON);
 
-            mech.feed(LT, LB);
-            X_ON = mech.X_ON(X, lastX, X_ON);
-            mech.setFlowerServo(Y, ServoFlower);
-
-
-            mech.setMidTakePlayer1(RB1);
 
 
             lastRT = RT;
