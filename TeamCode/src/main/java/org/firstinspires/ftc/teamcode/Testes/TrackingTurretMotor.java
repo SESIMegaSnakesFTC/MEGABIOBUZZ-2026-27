@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Mech.TurnOn_TurnOff;
 import org.firstinspires.ftc.teamcode.Mech.TurretMotor;
 
 @TeleOp(name = "TrackingMotorTurret", group = "TeleOp")
-public class TrakingTurret extends LinearOpMode {
+public class TrackingTurretMotor extends LinearOpMode {
 
     TurretMotor turretMotor = new TurretMotor();
     LimeLight limeLight = new LimeLight();
@@ -134,7 +134,6 @@ public class TrakingTurret extends LinearOpMode {
             else{
                 CurrentPos = turretMotor.saveCurrentPos();
                 limeLight.TurnOFF();
-                Running = turretMotor.FinishedTrack();
             }
 
             //==================================================

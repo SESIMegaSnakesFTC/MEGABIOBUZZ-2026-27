@@ -33,17 +33,16 @@ public class TurretMotor {
 
 
         //DEFININDO LADO PARA TRACKING
-
-        act = CurrentTx == 0 ? LimeStatus.NONE : (CurrentTx < -2.25 ? LimeStatus.LEFT :
-                                                             (CurrentTx > 2.25 ? LimeStatus.RIGHT : LimeStatus.CATCH));
-
-
         //MANUAL TRACKING FORÇAR A RECONHECER
         if (RTp1){
             act = LimeStatus.RIGHT;
         }
         else if (LTp1){
             act = LimeStatus.LEFT;
+        }
+        else{
+            act = CurrentTx == 0 ? LimeStatus.NONE : (CurrentTx < -2.25 ? LimeStatus.LEFT :
+                                                      (CurrentTx > 2.25 ? LimeStatus.RIGHT : LimeStatus.CATCH));
         }
 
 
@@ -86,10 +85,5 @@ public class TurretMotor {
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turretMotor.setPower(0.467);
     }
-    public boolean FinishedTrack(){
-        return !turretMotor.isBusy();
-    }
-    public void setNormalMode(){
-        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
+
 }

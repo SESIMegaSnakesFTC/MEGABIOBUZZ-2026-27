@@ -127,7 +127,7 @@ public class RedTeleWarmUpLime extends LinearOpMode {
 
                 double CurrentTX = limeLight.MediumTx();
 
-                turret.TurretTracking(gamepad2, RTp1, LTp1, CurrentTX);
+
 
                 //=========================================
 

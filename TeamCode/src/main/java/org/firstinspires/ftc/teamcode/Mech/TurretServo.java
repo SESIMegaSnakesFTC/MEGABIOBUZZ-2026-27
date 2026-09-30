@@ -1,43 +1,46 @@
 package org.firstinspires.ftc.teamcode.Mech;
 
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class TurretServo {
 
 
 
-    private Servo TurretServo;
+    private CRServo TurretServo;
     private enum LimeStatus {CATCH, LEFT, RIGHT, NONE}
     LimeStatus act = LimeStatus.NONE;
-    double AligmentTurret = 0.067;
+    double lastTX = 0;
 
 
     public void init(HardwareMap hardwareMap){
-        TurretServo = hardwareMap.get(Servo.class, "TurretServo");
-        TurretServo.setPosition(0.5); //No meio alinhado
+        TurretServo = hardwareMap.get(CRServo.class, "TurretServo");
     }
 
-    public void TurretTracking(Gamepad gamepad2, boolean RTp1, boolean LTp1, double CurrentTx){
+    public void TurretTracking(Gamepad gamepad2, boolean RTp1, boolean LTp1, double CurrentTx, boolean Y_ON){
 
+
+        //VALORES DE ALINHAMENTO -> FASTER && CONTROL
+        double F_v = 0.289*CurrentTx/10.2;
+        double C_v = 0.289*CurrentTx/15.6;
 
         //DEFININDO LADO PARA TRACKING
-
-        act = CurrentTx == 0 ? LimeStatus.NONE :(CurrentTx < -2.5 ? LimeStatus.LEFT :
-                         (CurrentTx > 2.5 ? LimeStatus.RIGHT : LimeStatus.CATCH));
-
         //MANUAL TRACKING FORÇAR A RECONHECER
-        if (RTp1){
-            act = LimeStatus.RIGHT;
+        if (!Y_ON){
+
+            if (RTp1){
+                TurretServo.setPower(0.2867);
+            }
+            else if (LTp1){
+                TurretServo.setPower(-0.2867);
+            }
+            else TurretServo.setPower(0);
         }
-        else if (LTp1){
-            act = LimeStatus.LEFT;
+        else{
+            act = CurrentTx == 0  ? LimeStatus.NONE :(CurrentTx < -4.5 ? LimeStatus.LEFT :
+                                                      (CurrentTx > 4.5 ? LimeStatus.RIGHT : LimeStatus.CATCH));
         }
 
 
@@ -45,23 +48,37 @@ public class TurretServo {
 
 
             case CATCH:
+
+                TurretServo.setPower(0);
                 gamepad2.rumble(0.5, 0.5, 500);
                 break;
 
             case LEFT:
-                TurretServo.setPosition(turretCurrentPos() - AligmentTurret);
+                TurretServo.setPower(CurrentTx > -5 ? F_v : C_v);
                 break;
 
             case RIGHT:
-                TurretServo.setPosition(turretCurrentPos() + AligmentTurret);
+                TurretServo.setPower(CurrentTx < 5 ? F_v : C_v);
                 break;
 
             case NONE:
+
+                if (Y_ON) {
+                    TurretServo.setPower(lastTX < 0 ? F_v : (lastTX > 0 ? -F_v : 0 ));
+                }
                 break;
 
         }
+
+        if (CurrentTx != 0){
+            lastTX = CurrentTx;
+        }
+
+
+
     }
 
-    private double turretCurrentPos(){ return TurretServo.getPosition(); }
-
+    public LimeStatus getAct(){
+        return act;
+    }
 }
