@@ -37,7 +37,6 @@ public class TrackingTurretServo extends LinearOpMode {
 
             //Limelight Activating
             boolean B = gamepad1.b;
-            boolean Y = gamepad1.y;
 
             B_ON = button.IsActivate(B, lastB, B_ON);
 
@@ -70,6 +69,7 @@ public class TrackingTurretServo extends LinearOpMode {
             telemetry.addData("tracking", A_ON ? "ON" : "OFF");
             telemetry.addData("Manual Mode", !A_ON ? "ON" : "OFF");
             telemetry.addData("Status Limelight", turretServo.getAct());
+            telemetry.addData("LastTx", turretServo.getLastTx());
             telemetry.update();
         }
     }

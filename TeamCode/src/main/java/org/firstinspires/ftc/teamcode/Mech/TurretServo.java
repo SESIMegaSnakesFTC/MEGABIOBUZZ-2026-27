@@ -43,6 +43,10 @@ public class TurretServo {
                                                       (CurrentTx > 4.5 ? LimeStatus.RIGHT : LimeStatus.CATCH));
         }
 
+        if (act == LimeStatus.NONE) {
+            TurretServo.setPower(lastTX < 0 ? F_v : (lastTX > 0 ? -F_v : 0 ));
+        }
+
 
         switch (act){
 
@@ -63,9 +67,6 @@ public class TurretServo {
 
             case NONE:
 
-                if (Y_ON) {
-                    TurretServo.setPower(lastTX < 0 ? F_v : (lastTX > 0 ? -F_v : 0 ));
-                }
                 break;
 
         }
@@ -80,5 +81,9 @@ public class TurretServo {
 
     public LimeStatus getAct(){
         return act;
+    }
+
+    public double getLastTx(){
+        return lastTX;
     }
 }

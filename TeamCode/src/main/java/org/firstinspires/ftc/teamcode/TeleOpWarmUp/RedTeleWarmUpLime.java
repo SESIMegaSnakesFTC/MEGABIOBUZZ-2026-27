@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Mech.LimeLight;
 import org.firstinspires.ftc.teamcode.Mech.Shooter;
 import org.firstinspires.ftc.teamcode.Mech.TurnOn_TurnOff;
 import org.firstinspires.ftc.teamcode.Mech.TurretServo;
-import org.firstinspires.ftc.teamcode.Mech.feeder;
+import org.firstinspires.ftc.teamcode.Mech.Feeder;
 import org.firstinspires.ftc.teamcode.Mech.midTake;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class RedTeleWarmUpLime extends LinearOpMode {
     //===========================================================================
 
 
-    Chassi drivetrain = new Chassi(); feeder myfeeder = new feeder();
+    Chassi drivetrain = new Chassi(); Feeder myfeeder = new Feeder();
     IMU_Initializer imu = new IMU_Initializer(); midTake midtake = new midTake();
     TurretServo turret = new TurretServo(); Shooter shooter = new Shooter();
 

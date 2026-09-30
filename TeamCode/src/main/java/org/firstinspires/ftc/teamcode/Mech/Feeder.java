@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Mech;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class feeder {
+public class Feeder {
 
     private DcMotor feeder;
 
