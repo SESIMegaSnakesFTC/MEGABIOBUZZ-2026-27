@@ -117,7 +117,7 @@ public class RedOficialTeleWarmUp extends LinearOpMode {
                 limelight.TurnON(true);
 
                 if (B_ON){
-                    turret.TurretTracking(gamepad1, RTp1, LTp1, CurrentTx, B_ON);
+                    //turret.TurretTracking(gamepad1, RTp1, LTp1, CurrentTx, B_ON, 0);
                 }
             }
 

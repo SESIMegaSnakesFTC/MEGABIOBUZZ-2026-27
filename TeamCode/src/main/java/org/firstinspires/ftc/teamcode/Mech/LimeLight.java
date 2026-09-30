@@ -21,7 +21,7 @@ public class LimeLight {
     public void TurnON(boolean RedSide){
 
         limelight3A.start();
-        limelight3A.setPollRateHz(70);
+        limelight3A.setPollRateHz(90);
         limelight3A.pipelineSwitch( RedSide ? 0 : 1 );
 
     }
