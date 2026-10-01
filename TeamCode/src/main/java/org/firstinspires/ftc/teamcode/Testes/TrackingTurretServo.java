@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Testes;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Mech.LimeLight;
@@ -10,8 +11,10 @@ import org.firstinspires.ftc.teamcode.Mech.TurretServo;
 public class TrackingTurretServo extends LinearOpMode {
 
     double CurrenTx = 0;
-    private TurretServo turretServo = new TurretServo();
-    private LimeLight limelight = new LimeLight();
+    double adjust = 0;
+    boolean lastUP = false, lastDOWN = false;
+    private final TurretServo turretServo = new TurretServo();
+    private final LimeLight limelight = new LimeLight();
 
     //Logic Button
 
@@ -32,6 +35,23 @@ public class TrackingTurretServo extends LinearOpMode {
 
         while(opModeIsActive()){
 
+            //Adjust value
+
+            boolean dpadUP = gamepad1.dpad_up;
+            boolean dpadDOWN = gamepad1.dpad_down;
+
+            if (dpadDOWN && !lastDOWN){
+                adjust += 0.01;
+            }
+
+            if (dpadUP && !lastUP){
+                adjust -= 0.01;
+            }
+
+            lastUP = dpadUP;
+            lastDOWN = dpadDOWN;
+
+
             boolean RT = gamepad1.right_trigger > 0.5;
             boolean LT = gamepad1.left_trigger  > 0.5;
 
@@ -43,7 +63,7 @@ public class TrackingTurretServo extends LinearOpMode {
 
             if (B_ON) {
 
-                limelight.TurnON(true);
+                limelight.TurnON(false);
                 CurrenTx = limelight.MediumTx();
             }
             else limelight.TurnOFF();
@@ -53,12 +73,17 @@ public class TrackingTurretServo extends LinearOpMode {
             boolean A = gamepad1.a;
             A_ON = button.IsActivate(A, lastA, A_ON);
 
-            if (A_ON){
-                turretServo.TurretTracking(gamepad1, RT, LT, CurrenTx, true);
-            }
-            else{
-                turretServo.TurretTracking(gamepad1, RT, LT, CurrenTx, false);
-            }
+            //Nova variável
+            LLResult result = limelight.getResult();
+            boolean TagVisible = result != null && result.isValid();
+
+
+            turretServo.TurretTracking(gamepad1, RT, LT, TagVisible, CurrenTx, A_ON);
+
+
+
+
+            double trackingPotence = turretServo.getPower();
 
             lastA = A;
             lastB = B;
@@ -70,6 +95,8 @@ public class TrackingTurretServo extends LinearOpMode {
             telemetry.addData("Manual Mode", !A_ON ? "ON" : "OFF");
             telemetry.addData("Status Limelight", turretServo.getAct());
             telemetry.addData("LastTx", turretServo.getLastTx());
+            telemetry.addData("lastAct", turretServo.getLastAct());
+            telemetry.addData("Força tracking", trackingPotence);
             telemetry.update();
         }
     }
