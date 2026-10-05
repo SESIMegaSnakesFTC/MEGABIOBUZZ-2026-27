@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.turret;
+package org.firstinspires.ftc.teamcode.Mech.Turret;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Mech.Turret.TurretController;
 
 
 @TeleOp(name = "TurretTuning", group = "Turret")
-public class TurretTuning extends LinearOpMode {
+public class TurretTunning extends LinearOpMode {
 
     private DcMotorEx turret;
     @Override

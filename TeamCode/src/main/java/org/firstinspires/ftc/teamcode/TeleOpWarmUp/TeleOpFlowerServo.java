@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.Mech.Chassi;
 import java.util.List;
 
 
-@TeleOp(name = "TeleOpWarmUpFlowerServo", group = "TeleOp")
-public class OficialTeleWarmUpFlowerServo extends LinearOpMode {
+@TeleOp(name = "TeleOpFlowerServo", group = "TeleOp")
+public class TeleOpFlowerServo extends LinearOpMode {
 
     boolean lastRT = false, RT_ON = false;
     boolean lastX = false, X_ON = true;

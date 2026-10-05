@@ -18,12 +18,19 @@ public class LimeLight {
 
     }
 
-    public void TurnON(boolean RedSide){
+    public void TurnONred(boolean RedSideUP){
 
         limelight3A.start();
         limelight3A.setPollRateHz(90);
-        limelight3A.pipelineSwitch( RedSide ? 0 : 1 );
+        limelight3A.pipelineSwitch( RedSideUP ? 0 : 1 ); /**0 ->**/
 
+    }
+
+    public void TurnONblue(boolean BlueSideUP){
+
+        limelight3A.start();
+        limelight3A.setPollRateHz(90);
+        limelight3A.pipelineSwitch(BlueSideUP ? 2 : 3);
     }
     public void TurnOFF(){
         limelight3A.stop();

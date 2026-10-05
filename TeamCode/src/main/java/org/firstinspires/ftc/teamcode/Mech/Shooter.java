@@ -28,9 +28,9 @@ public class Shooter {
         shooter.setVelocityPIDFCoefficients(60, 0, 0, BasePotence);
     }
 
-    public void Activate(boolean RTp2){
+    public void Activate(boolean RT_ON){
 
-        if (RTp2){
+        if (RT_ON){
 
             if (timer.milliseconds() > 500){
                 cachedVolts = battery.getVoltage();

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Testes;
+package org.firstinspires.ftc.teamcode.Mech.Turret;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -63,7 +63,7 @@ public class TrackingTurretServo extends LinearOpMode {
 
             if (B_ON) {
 
-                limelight.TurnON(false);
+                limelight.TurnONred(false);
                 CurrenTx = limelight.MediumTx();
             }
             else limelight.TurnOFF();

@@ -82,4 +82,12 @@ public class TurretTracking {
 
         turret.setTarget(target);
     }
+    public void reset() {
+        state = State.SEARCH;
+        seen = 0;
+        hist.clear();
+        lastMs = System.currentTimeMillis();
+        target = turret.angleDeg;
+        turret.setTarget(turret.angleDeg);
+    }
 }

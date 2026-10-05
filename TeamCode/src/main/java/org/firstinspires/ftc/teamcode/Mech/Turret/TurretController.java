@@ -5,11 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
-/*
- * TurretController: leva a torreta ate um ANGULO ALVO (em graus). Nao sabe nada de Limelight.
- * Controle: P no erro + kS (atrito) - kD na velocidade medida - kV no giro do chassi.
- * O zero do encoder e onde a torreta estiver quando esta classe e criada (INIT) => deve ser o CENTRO.
- */
+
 public class TurretController {
     private final DcMotorEx motor;
     private double target = 0;
@@ -52,7 +48,13 @@ public class TurretController {
         double rawVel = motor.getVelocity() / tpd;
         velDegPerSec = 0.7 * velDegPerSec + 0.3 * rawVel; // filtro do encoder de 28 ticks e ruidoso
 
-        if (!enabled) { write(manualPower); return; }
+        if (!enabled) {
+            double mp = manualPower;
+            if ((angleDeg >= TurretConfig.maxDeg && mp > 0) ||
+                    (angleDeg <= TurretConfig.minDeg && mp < 0)) mp = 0;  // não passa dos 400
+            write(mp);
+            return;
+        }
 
 
         double err = getError();
