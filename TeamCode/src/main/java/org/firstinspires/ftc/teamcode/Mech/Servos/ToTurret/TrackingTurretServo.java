@@ -1,11 +1,10 @@
-package org.firstinspires.ftc.teamcode.Mech.Turret;
+package org.firstinspires.ftc.teamcode.Mech.Servos.ToTurret;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Mech.LimeLight;
 import org.firstinspires.ftc.teamcode.Mech.TurnOn_TurnOff;
-import org.firstinspires.ftc.teamcode.Mech.TurretServo;
 
 @TeleOp(name = "TrackingServo", group = "TeleOp")
 public class TrackingTurretServo extends LinearOpMode {

@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.pedro.constant;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import java.util.List;
 
@@ -80,7 +80,7 @@ public class AzulCimaMov extends LinearOpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        follower = constant.create(hardwareMap);
+        follower = Constants.create(hardwareMap);
         follower.setPose(pathZulCimaMov.start);
 
         waitForStart();

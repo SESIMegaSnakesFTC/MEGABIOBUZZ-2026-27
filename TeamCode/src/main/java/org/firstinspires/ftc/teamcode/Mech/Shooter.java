@@ -12,20 +12,40 @@ public class Shooter {
     VoltageSensor battery;
     ElapsedTime timer = new ElapsedTime();
 
-    double TargetVelocity = 1578;
+    private final double p = 60;
 
+    double TargetVelocity = 1578;
     static final double BasePotence = 16.67;
-    static final double PorcentOfBatteryOf = 12.67;
+    static final double PorcentOfBatteryOf = 12.97;
 
     double lastF = BasePotence;
     double cachedVolts;
 
 
+    // Sem sensor: o init busca o sensor de tensao sozinho
+    public Shooter(){
+        this(null);
+    }
+
+    // Com sensor: usa o sensor passado pelo OpMode
+    public Shooter(VoltageSensor battery){
+        this.battery = battery;
+    }
+
     public void init(HardwareMap hardwareMap){
 
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        shooter.setVelocityPIDFCoefficients(60, 0, 0, BasePotence);
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.setVelocityPIDFCoefficients(p, 0, 0, BasePotence);
+
+        // So busca o sensor se nenhum foi passado no construtor
+        if (battery == null && hardwareMap.voltageSensor.iterator().hasNext()){
+            battery = hardwareMap.voltageSensor.iterator().next();
+        }
+        cachedVolts = (battery != null) ? battery.getVoltage() : PorcentOfBatteryOf;
+        timer.reset();
     }
 
     public void Activate(boolean RT_ON){
@@ -33,7 +53,14 @@ public class Shooter {
         if (RT_ON){
 
             if (timer.milliseconds() > 500){
-                cachedVolts = battery.getVoltage();
+                if (battery != null){
+                    double v = battery.getVoltage();
+                    // Ignora leitura invalida ou queda brusca de tensao
+                    if (v > 7.0){
+                        // Filtro: suaviza as quedas momentaneas ao acelerar o shooter
+                        cachedVolts = 0.8 * cachedVolts + 0.2 * v;
+                    }
+                }
                 timer.reset();
             }
 
@@ -41,7 +68,7 @@ public class Shooter {
 
             if(Math.abs(f - lastF) > 0.05){
 
-                shooter.setVelocityPIDFCoefficients(60, 0,0, f);
+                shooter.setVelocityPIDFCoefficients(p, 0,0, f);
                 lastF = f;
             }
 

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Mech.Turret;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
@@ -18,6 +19,9 @@ public class TurretController {
 
     public TurretController(DcMotorEx motor) {
         this.motor = motor;
+        motor.setDirection(TurretConfig.turretReversed
+                ? DcMotorSimple.Direction.REVERSE
+                : DcMotorSimple.Direction.FORWARD);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -41,12 +45,14 @@ public class TurretController {
 
 
 
-    public void update(double ffDegPerSec, double battV) {
+    /** @param targetVelDegPerSec velocidade que o ALVO esta andando (relativa ao chassi), em graus/s */
+    public void update(double targetVelDegPerSec, double battV) {
         // >>>Leituras<<<
+
         double tpd = TurretConfig.ticksPerDeg();
         angleDeg = motor.getCurrentPosition() / tpd;
         double rawVel = motor.getVelocity() / tpd;
-        velDegPerSec = 0.7 * velDegPerSec + 0.3 * rawVel; // filtro do encoder de 28 ticks e ruidoso
+        velDegPerSec = 0.7 * velDegPerSec + 0.3 * rawVel; // filtro do encoder de 28 ticks
 
         if (!enabled) {
             double mp = manualPower;
@@ -62,10 +68,13 @@ public class TurretController {
                 ? 0.0
                 : TurretConfig.kP * err + TurretConfig.kS * Math.signum(err);
 
-        // freio velocidade e compensacao do giro do chassi
-        double power = p - TurretConfig.kD * velDegPerSec - TurretConfig.kV * ffDegPerSec;
 
-        // compensa de bateria, limita e protege os limites
+        // kV empurra na velocidade do alvo; kD amortece so a DIFERENCA de velocidade
+        // (antes o D freava a turret justamente quando ela precisava acompanhar o giro do chassi)
+        double velErr = targetVelDegPerSec - velDegPerSec;
+        double power = p + TurretConfig.kV * targetVelDegPerSec + TurretConfig.kD * velErr;
+
+        // compensação de bateria
         if (battV > 1.0) power *= TurretConfig.nominalV / battV;
         power = clamp(power, -TurretConfig.maxPower, TurretConfig.maxPower);
         if ((angleDeg >= TurretConfig.maxDeg && power > 0) ||

@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.pedro.constant;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import java.util.List;
 
@@ -85,7 +85,7 @@ public class AzulCimaWarmUp extends LinearOpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        follower = constant.create(hardwareMap);
+        follower = Constants.create(hardwareMap);
         follower.setPose(pathAzulCimaWarmUp.start);
 
 

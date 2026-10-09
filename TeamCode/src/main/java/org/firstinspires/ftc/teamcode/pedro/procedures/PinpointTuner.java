@@ -11,6 +11,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.util.*;
 
+
+
 public class PinpointTuner extends Procedure {
     enum PodType {
         SWING_ARM,
@@ -89,7 +91,7 @@ class PinpointCustomPodScalar extends TuningOpMode<Double> {
             c.name.set(name);
             c.ticksPerUnit.set(OptionalDouble.of(1.0));
             c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-            c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+            c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
             c.xPodOffset.set(0.0);
             c.yPodOffset.set(0.0);
         });

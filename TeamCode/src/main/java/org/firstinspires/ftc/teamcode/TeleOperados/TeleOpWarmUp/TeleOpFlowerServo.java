@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.TeleOpWarmUp;
+package org.firstinspires.ftc.teamcode.TeleOperados.TeleOpWarmUp;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Mech.Chassi;
 import java.util.List;
 
 
+@Disabled
 @TeleOp(name = "TeleOpFlowerServo", group = "TeleOp")
 public class TeleOpFlowerServo extends LinearOpMode {
 

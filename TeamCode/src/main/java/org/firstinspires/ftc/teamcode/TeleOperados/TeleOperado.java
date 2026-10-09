@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TeleOpWarmUp;
+package org.firstinspires.ftc.teamcode.TeleOperados;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -26,6 +26,11 @@ public class TeleOperado extends LinearOpMode {
 
         //INITS --> Um Monte slk
 
+        // >>> Bateria <<<
+
+        VoltageSensor vs = hardwareMap.voltageSensor.iterator().next(); //Sapeca a tensao da bateria
+
+
             //>>>Chassi<<<
 
         Chassi chassi   = new Chassi();
@@ -42,7 +47,7 @@ public class TeleOperado extends LinearOpMode {
         midtake.init(hardwareMap);
 
             //>>>Shooter<<<
-        Shooter shooter = new Shooter();
+        Shooter shooter = new Shooter(vs);
         shooter.init(hardwareMap);
 
             //>>>Limelight
@@ -54,7 +59,7 @@ public class TeleOperado extends LinearOpMode {
 
         TurretController turret = new TurretController(hardwareMap.get(DcMotorEx.class, "turretMotor"));
         TurretTracking tracker  = new TurretTracking(turret);
-        VoltageSensor vs = hardwareMap.voltageSensor.iterator().next(); //Sapeca a tensao da bateria
+
 
 
 

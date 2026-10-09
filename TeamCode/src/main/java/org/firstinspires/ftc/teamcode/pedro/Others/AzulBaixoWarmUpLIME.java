@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.pedro.constant;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 
 class PathAzulBaixoWarmUpLIME {
@@ -83,7 +83,7 @@ public class AzulBaixoWarmUpLIME extends LinearOpMode {
         initHardware();
 
 
-        follower = constant.create(hardwareMap);
+        follower = Constants.create(hardwareMap);
         follower.setPose(pathAzulBaixoWarmUp.start);
 
         //>>>RAMPA FECHADA<<<
