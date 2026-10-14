@@ -1,0 +1,48 @@
+
+# 2026-10-13 11:30:20.658232
++Yes
+
+# 2026-10-13 11:51:50.426826
++yes
+
+# 2026-10-13 11:52:38.327840
++Ollama
+
+# 2026-10-13 11:54:16.592275
++ollama pull qwen2.5-coder:3b
++aider --model ollama/qwen2.5-coder:3b
+
+# 2026-10-13 11:54:41.303645
++ls -la ~/.aider.conf.yml ~/StudioProjects/MEGA2026-27/.aider.conf.yml 2>/dev/null
++grep -i model ~/.aider.conf.yml ~/StudioProjects/MEGA2026-27/.aider.conf.yml 2>/dev/null
++env | grep -i aider
+
+# 2026-10-13 11:54:55.357250
++ollama list
+
+# 2026-10-13 11:55:03.679497
++Ollama list
+
+# 2026-10-13 11:55:19.829285
++/exit
+
+# 2026-10-13 11:55:37.066743
++ls -la ~/.aider.conf.yml ~/StudioProjects/MEGA2026-27/.aider.conf.yml 2>/dev/null
++grep -i model ~/.aider.conf.yml ~/StudioProjects/MEGA2026-27/.aider.conf.yml 2>/dev/null
++env | grep -i aider
++ollama list
+
+# 2026-10-13 11:55:49.098950
++ollama list
+
+# 2026-10-13 11:57:04.165868
++D
+
+# 2026-10-13 11:58:24.535508
++ollama run qwen2.5-coder:3b "diga olá"
+
+# 2026-10-13 12:00:25.115831
++ollama run
+
+# 2026-10-13 12:13:16.925241
++ollama ps
