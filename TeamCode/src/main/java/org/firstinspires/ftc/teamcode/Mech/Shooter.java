@@ -14,7 +14,6 @@ public class Shooter {
 
     private final double p = 60;
 
-    double TargetVelocity = 1578;
     static final double BasePotence = 16.67;
     static final double PorcentOfBatteryOf = 12.97;
 
@@ -48,7 +47,7 @@ public class Shooter {
         timer.reset();
     }
 
-    public void Activate(boolean RT_ON){
+    public void Activate(boolean RT_ON, double TargetVelocity){
 
         if (RT_ON){
 

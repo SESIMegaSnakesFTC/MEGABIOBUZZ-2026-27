@@ -1,9 +1,16 @@
 package org.firstinspires.ftc.teamcode.Mech.Turret;
 
+import static com.pedropathing.api.Paths.curve;
+import static com.pedropathing.api.Paths.line;
+
+import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 
 import java.util.HashMap;
 import java.util.Map;
+
+
 
 
 public class HiveTracking {
@@ -12,10 +19,12 @@ public class HiveTracking {
 
     public enum StartPose {
 
-        RED_DOWN (Alliance.RED,   60.0,   9.0,   90.0),
-        RED_UP   (Alliance.RED,   60.0, 132.5,  -90.0),
-        BLUE_DOWN(Alliance.BLUE,  82.0,   9.0,   90.0),
-        BLUE_UP  (Alliance.BLUE,  84.0, 132.5,  -90.0);
+        RED_DOWN      (Alliance.RED,   56.0,   9.0,   180.0),
+        RED_UP        (Alliance.RED,   56.0, 132.5,  -90.0),
+        RED_PARK      (Alliance.RED, 10, 103, 0),
+        BLUE_DOWN     (Alliance.BLUE,  82.0,   9.0,   90.0),
+        BLUE_UP       (Alliance.BLUE,  84.0, 132.5,  -90.0),
+        BLUE_PARK     (Alliance.BLUE, 135, 35, 180);
 
         public final Alliance alliance;
         public final double x, y, headingDeg;
@@ -41,10 +50,10 @@ public class HiveTracking {
     private static final double BLUE_UP_X   = 84.0, BLUE_UP_Y   = 84.0;
 
     // ---------- IDs das AprilTags ----------
-    public static final int[] RED_DOWN_TAGS = {30, 31, 32, 33};
-    public static final int[] RED_UP_TAGS   = {34, 35, 36, 37};
-    public static final int[] BLUE_DOWN_TAGS = {};  // TODO IDs das tags azuis
-    public static final int[] BLUE_UP_TAGS   = {};  // TODO IDs das tags azuis
+    public static final int[] RED_DOWN_TAGS  = {30, 31, 32, 33};
+    public static final int[] RED_UP_TAGS    = {34, 35, 36, 37};
+    public static final int[] BLUE_DOWN_TAGS = {38, 39, 40, 41};
+    public static final int[] BLUE_UP_TAGS   = {42, 43, 44, 45};
 
     // ---------- Posicao (X, Y) de cada AprilTag no campo ----------
     // Mesmo sistema de coordenadas das hives/Pinpoint (polegadas). Medir o CENTRO de cada tag.
@@ -57,15 +66,25 @@ public class HiveTracking {
         // na hive (tags simetricas na boca), mantendo o espacamento medido.
         // Mesmos valores do Limelight/hives_vermelhas.fmap -> mudar os dois juntos.
         // RED_DOWN (face aponta para -y)
-        tag(30, 51.5, 60.1);
-        tag(31, 55.4, 60.1);
-        tag(32, 60.6, 60.1);
-        tag(33, 64.5, 60.1);
+        tag(30, 51.5, 60);
+        tag(31, 55.4, 60);
+        tag(32, 60.6, 60);
+        tag(33, 64.5, 60);
         // RED_UP (face aponta para +y)
-        tag(34, 64.3, 78.9);
-        tag(35, 60.8, 78.9);
-        tag(36, 55.2, 78.9);
-        tag(37, 51.7, 78.9);
+        tag(34, 64.3, 83.7);
+        tag(35, 60.8, 83.7);
+        tag(36, 55.2, 83.7);
+        tag(37, 51.7, 83.7);
+        //BLUE_DOWN
+        tag(38, 77.5, 60);
+        tag(39, 81.1, 60);
+        tag(40, 86.3, 60);
+        tag(41, 90.4, 60);
+        //RED_UP
+        tag(42, 90.2, 83.7);
+        tag(43, 86.7, 83.7);
+        tag(44, 81.1, 83.7);
+        tag(45, 77.5, 83.7);
     }
 
     private static void tag(int id, double x, double y) {

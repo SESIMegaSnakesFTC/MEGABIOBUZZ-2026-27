@@ -3,20 +3,17 @@ package org.firstinspires.ftc.teamcode.Mech;
 import java.util.Map;
 import java.util.TreeMap;
 
-/** Tabela distancia -> (posicao do servo do hood, potencia do shooter), com interpolacao.
- * Agiliza e não necessita de calculos -> sem sobrecarregar o cpu
- */
 
 public class ValuesToShoot {
 
-    // Chave: distancia do eixo da turret ate a hive (in)
+    // Chave: distancia do eixo da turret ate a hive -> polegadas
     // Valor: {posicao do servo do hood, potencia do shooter}
     public static final TreeMap<Double, double[]> ValoresShooting = new TreeMap<>();
 
     static {
         // Medir depois --> quand o shooter estiver pronto
-        dist(40.0,    Double.NaN, Double.NaN);
-        dist(51.1811, Double.NaN, Double.NaN);   // distancia maxima reto para a hive
+        dist(40.0,    Double.NaN, 1350);
+        dist(51.1811, Double.NaN, 1570);   // distancia maxima reto para a hive
         dist(60.0,    Double.NaN, Double.NaN);
     }
 
