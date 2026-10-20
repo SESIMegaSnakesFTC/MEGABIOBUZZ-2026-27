@@ -17,6 +17,7 @@ public class TesteAutoPath extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+
         for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
@@ -31,9 +32,9 @@ public class TesteAutoPath extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Pedro: + lateral = esquerda, + giro = anti-horário
-            double y  = -gamepad1.left_stick_y;
-            double x  =  gamepad1.left_stick_x;
-            double rx =  gamepad1.right_stick_x;
+            double y  = gamepad1.left_stick_y;
+            double x  = -gamepad1.left_stick_x;
+            double rx = gamepad1.right_stick_x;
             boolean mexeu = Math.abs(y) > 0.1 || Math.abs(x) > 0.1 || Math.abs(rx) > 0.1;
 
             // A=L1 (RED_PARK), B=L2 (BLUE_PARK), resto sem coordenada

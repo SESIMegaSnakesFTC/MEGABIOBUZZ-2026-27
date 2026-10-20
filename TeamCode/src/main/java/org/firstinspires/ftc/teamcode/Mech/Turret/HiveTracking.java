@@ -19,12 +19,14 @@ public class HiveTracking {
 
     public enum StartPose {
 
-        RED_DOWN      (Alliance.RED,   56.0,   9.0,   180.0),
+        RED_DOWN      (Alliance.RED,   56.0,   9.0,   90.0),
         RED_UP        (Alliance.RED,   56.0, 132.5,  -90.0),
-        RED_PARK      (Alliance.RED, 10, 103, 0),
+        RED_PARK      (Alliance.RED, 15, 95, 0),
+        RED_MIDDLE    (Alliance.RED, 70.7, 117.7, 0),
         BLUE_DOWN     (Alliance.BLUE,  82.0,   9.0,   90.0),
         BLUE_UP       (Alliance.BLUE,  84.0, 132.5,  -90.0),
-        BLUE_PARK     (Alliance.BLUE, 135, 35, 180);
+        BLUE_PARK     (Alliance.BLUE, 130, 45.5, 180),
+        BLUE_MIDDLE   (Alliance.BLUE, 70.7, 23.5, 0);
 
         public final Alliance alliance;
         public final double x, y, headingDeg;
