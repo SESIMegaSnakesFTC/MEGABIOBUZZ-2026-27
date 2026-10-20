@@ -35,6 +35,7 @@ public class Shooter {
 
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shooter.setDirection(DcMotorEx.Direction.REVERSE);
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setVelocityPIDFCoefficients(p, 0, 0, BasePotence);
@@ -78,4 +79,13 @@ public class Shooter {
         }
 
     }
+
+    public void Tune(double P, double I, double D, double F, double rpm){
+        shooter.setVelocityPIDFCoefficients(P, I, D, F);
+        shooter.setVelocity(rpm);
+
+
+    }
+
+    public double getVelocity(){ return shooter.getVelocity();}
 }

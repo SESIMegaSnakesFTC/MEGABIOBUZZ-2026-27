@@ -67,4 +67,4 @@ Code under `teamcode/` is organized by role, not by season feature, and most pac
   3. `Implement:` lógica nova implementada e em quais classes
   4. `Refactor:` arquivos movidos/renomeados, reorganização sem mudar lógica
 - Antes de commitar, propor a mensagem nesse formato e aguardar aprovação; só depois fazer o push.
-- Sempre perguntar antes de executar um código e explicar brevemente usando a skill caveman
+- Sempre usar o caveman, exceto quando for lhe pedido para desligar

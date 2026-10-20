@@ -47,8 +47,6 @@ public class TeleOp_BLUE extends LinearOpMode {
 
     //Midtake
 
-    boolean lastRT = false, RT_ON = false;
-
     ElapsedTime timer;
 
 
@@ -56,9 +54,10 @@ public class TeleOp_BLUE extends LinearOpMode {
 
     /** >>>  Tudo no player 1  <<< **/
 
-    final boolean A_ON = true;
-    final boolean B_ON = false;
-    boolean WasOnTracking = false;
+    private boolean A_ON  = false, lastA = false;
+
+    private boolean B_ON  = true, lastB = false;
+    private boolean WasOnTracking = false;
 
 
     /**Isso aqui vai definir o local de início do robô
@@ -126,9 +125,9 @@ public class TeleOp_BLUE extends LinearOpMode {
 
             // Drivetrain
 
-            double x  = gamepad1.left_stick_x;
+            double x  =  gamepad1.left_stick_x;
             double y  = -gamepad1.left_stick_y;
-            double rx = gamepad1.right_stick_x;
+            double rx =  gamepad1.right_stick_x;
 
             drivetrain.drive(x, y, rx);
 
@@ -149,7 +148,9 @@ public class TeleOp_BLUE extends LinearOpMode {
             //Button for tracking adjust
 
 
-            boolean X = gamepad1.x;
+            boolean Y = gamepad1.y;
+            boolean B = gamepad1.b;
+            B_ON = button.IsActivate(B, lastB, B_ON);
 
 
 
@@ -162,7 +163,7 @@ public class TeleOp_BLUE extends LinearOpMode {
 
             //Correcting the pose of pod's using the limelight result
             boolean correct = corrector.update(llresultado, PosX, PosY, head, controller.angleDeg,
-                    corrector.getTurnDegPerSec(), X);
+                    corrector.getTurnDegPerSec(), Y);
 
             if (correct){
                 PosX = corrector.getCorrectedX();
@@ -179,8 +180,8 @@ public class TeleOp_BLUE extends LinearOpMode {
             hives.update(PosX, PosY);
 
 
-            if (A_ON && !WasOnTracking) tracker.reset();
-            WasOnTracking = A_ON;
+            if (B_ON && !WasOnTracking) tracker.reset();
+            WasOnTracking = B_ON;
 
             long nowMs = System.currentTimeMillis();
             if (voltageSensor != null && nowMs - lastVoltMs > 250){
@@ -190,9 +191,9 @@ public class TeleOp_BLUE extends LinearOpMode {
 
             // Turret
 
-            if (A_ON){
+            if (B_ON){
 
-                LLResult result = B_ON ? llresultado : null; //filtrozin
+                LLResult result = Y ? llresultado : null; //filtrozin
 
                 controller.enabled = true;
                 tracker.updateHeading(Heading);
@@ -202,40 +203,42 @@ public class TeleOp_BLUE extends LinearOpMode {
 
             }else{
                 controller.enabled = false;
-                controller.manualPower = (gamepad1.right_trigger - gamepad1.left_trigger)/2;
+                controller.manualPower = (gamepad1.right_trigger - gamepad1.left_trigger)/4;
                 controller.update(0, voltage);
             }
 
-            boolean Locked = A_ON && tracker.isLocked();
+            boolean Locked = B_ON && tracker.isLocked();
 
 
 
             // Feeder
 
-            feeder.activate(gamepad2.left_trigger > 0.5, gamepad2.left_bumper);
+            feeder.activate(gamepad1.left_bumper, gamepad1.right_bumper);
 
 
             // MidTake | Shooter
 
-            //Hood Correction
+                //Hood Correction
 
-            if (A_ON)hoodServo.hoodAjust(TargethoodPosition,feeder.getHoodPos());
+            if (B_ON)hoodServo.hoodAjust(TargethoodPosition,feeder.getHoodPos());
             else hoodServo.stop(); //para
 
 
-            boolean RT = gamepad2.right_trigger > 0.5;
-            RT_ON = button.IsActivate(RT, lastRT, RT_ON);
-            midtake.spin(false, RT_ON);
-            shooter.Activate(RT_ON, MotorPotence);
+            boolean A = gamepad1.a;
+            A_ON = button.IsActivate(A, lastA, A_ON);
 
-            if (RT_ON && !lastRT) timer = new ElapsedTime();
+            midtake.spin(false, A_ON);
+            shooter.Activate(A_ON, MotorPotence);
 
-            lastRT = RT;
+            if (A_ON && !lastA) timer = new ElapsedTime();
 
+
+            lastB  = B;
+            lastA  = A;
 
             //Gate Servo
 
-            boolean Open = timer != null && RT_ON && timer.seconds() > 1.5;
+            boolean Open = timer != null && A_ON && timer.seconds() > 1.5;
             gateServo.ShooterIsWorking(Open);//ToDo: falta testar valores de abertura
 
 

@@ -5,22 +5,32 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class MidTake {
 
-    private DcMotorEx MidTake;
+    private DcMotorEx midtake;
 
     public void init(HardwareMap hardwareMap){
 
-        MidTake = hardwareMap.get(DcMotorEx.class, "midTake");
-        MidTake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-        MidTake.setVelocityPIDFCoefficients(60, 0,0, 16.67);
+        midtake = hardwareMap.get(DcMotorEx.class, "midTake");
+        midtake.setDirection(DcMotorEx.Direction.REVERSE);
+        midtake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+
     }
 
     public void spin(boolean RBp1, boolean Yp2){
 
         if (RBp1 || Yp2){
-            MidTake.setVelocity(1578);
+            midtake.setVelocityPIDFCoefficients(60, 0,0, 16.67);
+            midtake.setVelocity(1578);
         }
         else{
-            MidTake.setVelocity(0);
+            midtake.setVelocity(0);
         }
     }
+
+    public void Tune(double P, double I, double D, double F, double rpm){
+        midtake.setVelocityPIDFCoefficients(P, I, D, F);
+        midtake.setVelocity(rpm);
+    }
+
+    public double getVelocity(){ return midtake.getVelocity();}
+
 }

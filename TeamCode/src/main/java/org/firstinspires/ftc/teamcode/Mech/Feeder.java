@@ -19,9 +19,9 @@ public class Feeder {
         feeder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void activate(boolean LT, boolean LB){
+    public void activate(boolean LB, boolean RB){
 
-        if (LT){
+        if (RB){
             feeder.setPower(0.8);
         } else if (LB){
             feeder.setPower(-0.8);

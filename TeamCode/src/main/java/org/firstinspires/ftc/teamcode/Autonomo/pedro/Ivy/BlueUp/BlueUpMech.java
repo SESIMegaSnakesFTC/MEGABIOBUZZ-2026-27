@@ -45,7 +45,7 @@ import org.firstinspires.ftc.teamcode.Mech.ValuesToShoot;
 
 class BlueUpMechPath {
 
-    private final PoseFactory poseFactory = PoseFactory.degrees().mirrorY(70.75);
+    private final PoseFactory poseFactory = PoseFactory.degrees().mirrorX(70.75).mirrorY(70.75);
 
     public final Pose start = poseFactory.of(85.5, 9, 90);
     private final Pose path1Start = poseFactory.of(85.5, 9, 0);
