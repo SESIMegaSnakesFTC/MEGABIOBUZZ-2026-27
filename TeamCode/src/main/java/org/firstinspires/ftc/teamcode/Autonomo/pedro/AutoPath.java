@@ -149,6 +149,21 @@ public class AutoPath {
         }
         return t0 > t1;
     }
+    public void HoldPosition(Follower follower, Pose currentPos, double Xtarget, double Ytarget, double X, double Y){
+
+
+        if (Math.abs(Xtarget-X) > 3 && Math.abs(Ytarget-Y) > 3){
+            follower.follow(pathzika(currentPos, follower));
+        }
+        else {
+            follower.hold(currentPos);
+        }
+
+    }
+
+    private Path pathzika(Pose pose, Follower follower){
+        return line(follower.pose(), pose);
+    }
 
     private static double dist(Pose a, Pose b) {
         return Math.hypot(a.x() - b.x(), a.y() - b.y());

@@ -29,7 +29,8 @@ public class Chassi {
 
     public void drive(double x, double y, double rx){
 
-
+        rx = -rx;
+        x = -x;
 
         rx = Math.copySign(rx*rx*rx*rx, rx);
 
