@@ -456,3 +456,18 @@ Estes pontos foram encontrados na leitura do código e **ainda não foram corrig
 ---
 
 <p align="center">🐍 <b>Mega Snakes</b> · FIRST® Tech Challenge · Temporada BIOBUZZ™ 2026–2027 🐝</p>
+
+
+
+
+
+
+
+
+
+---
+<p align="center">
+  <b>SESI MEGASNAKES • Boituva - SP</b><br>
+  <i>Transformando o mundo através da robótica e da educação.</i>
+</p>
+
