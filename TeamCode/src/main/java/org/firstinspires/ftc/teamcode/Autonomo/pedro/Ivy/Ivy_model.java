@@ -23,13 +23,13 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Autonomo.pedro.Constants;
-import org.firstinspires.ftc.teamcode.Mech.Feeder;
+import org.firstinspires.ftc.teamcode.Mech.ImportantMech.Feeder;
 import org.firstinspires.ftc.teamcode.Mech.LimeLight;
-import org.firstinspires.ftc.teamcode.Mech.MidTake;
+import org.firstinspires.ftc.teamcode.Mech.ImportantMech.MidTake;
 import org.firstinspires.ftc.teamcode.Mech.Servos.GateServo;
 import org.firstinspires.ftc.teamcode.Mech.Servos.HoodServo;
 import org.firstinspires.ftc.teamcode.Mech.Servos.RampServo;
-import org.firstinspires.ftc.teamcode.Mech.Shooter;
+import org.firstinspires.ftc.teamcode.Mech.ImportantMech.Shooter;
 import org.firstinspires.ftc.teamcode.Mech.Turret.HiveTracking;
 import org.firstinspires.ftc.teamcode.Mech.Turret.TurretController;
 import org.firstinspires.ftc.teamcode.Mech.Turret.TurretTracking;

@@ -4,8 +4,8 @@ package org.firstinspires.ftc.teamcode.PIDS;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.Mech.MidTake;
-import org.firstinspires.ftc.teamcode.Mech.Shooter;
+import org.firstinspires.ftc.teamcode.Mech.ImportantMech.MidTake;
+import org.firstinspires.ftc.teamcode.Mech.ImportantMech.Shooter;
 import org.firstinspires.ftc.teamcode.Mech.TurnOn_TurnOff;
 
 @TeleOp(name = "Shooter PIDF Tuning", group = "Tuning")

@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Mech.Chassi;
+import org.firstinspires.ftc.teamcode.Mech.ImportantMech.Chassi;
 
 import java.util.List;
 
