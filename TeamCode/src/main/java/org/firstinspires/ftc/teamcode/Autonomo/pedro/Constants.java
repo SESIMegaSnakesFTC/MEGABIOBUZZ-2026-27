@@ -25,7 +25,7 @@ public class Constants {
         c.backRightName.set("rightBack");
 
         // oposto do Chassi: lá frente física = potência negativa; no Pedro tem que ser positiva
-        c.frontLeftDirection.set(DcMotorSimple.Direction.FORWARD);
+        c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
         c.backLeftDirection.set(DcMotorSimple.Direction.FORWARD);
         c.frontRightDirection.set(DcMotorSimple.Direction.REVERSE);
         c.backRightDirection.set(DcMotorSimple.Direction.REVERSE);

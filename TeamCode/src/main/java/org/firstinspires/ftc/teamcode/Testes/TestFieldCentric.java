@@ -60,7 +60,7 @@ public class TestFieldCentric extends LinearOpMode {
             lastA = a;
 
             // robot-centric: mesma convencao do Pedro, sem rotacao
-            DrivePowers p = fieldCentric ? fc.powers(-x, y, -rx) : new DrivePowers(y, -x, -rx);
+            DrivePowers p = fieldCentric ? fc.powers(x, -y, rx) : new DrivePowers(-y, x, rx);
             follower.manual(p);
             follower.update();
 
