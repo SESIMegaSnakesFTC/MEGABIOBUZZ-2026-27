@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomo.pedro;
+package org.firstinspires.ftc.teamcode.pedro;
 
 import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.api.Paths.path;

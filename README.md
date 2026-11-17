@@ -17,7 +17,7 @@ Este repositório contém o código-fonte principal do robô da equipe **Mega Sn
 5. [🎯 Turret e Tracking](#5--turret-e-tracking)
 6. [👁️ Limelight](#6-️-limelight)
 7. [🛣️ Autônomos](#7-️-autônomos)
-8. [🔧 Atuadores](#8--atuadores)
+8. [🔧 Atuadores, Sensores e LEDs](#8--atuadores-sensores-e-leds)
 9. [🗂️ Estrutura de Pastas](#9-️-estrutura-de-pastas)
 10. [💻 Instalação e Compilação](#10--instalação-e-compilação)
 11. [📚 Recursos de Exemplo da FTC](#11--recursos-de-exemplo-da-ftc)
@@ -75,13 +75,17 @@ Estes são os OpModes e as classes que a equipe Mega Snakes desenvolveu para con
 
 | Categoria | Descrição e Objetivo |
 | :--- | :--- |
-| **Mecanum Drive** | `Mech/Chassi`: tração holonômica com normalização de potência. |
+| **Mecanum Drive** | `Mech/Chassi`: tração holonômica robot-centric com normalização de potência. |
+| **Field-Centric** | `Mech/FieldCentric`: movimentação pela perspectiva do piloto, feita pelo `Follower` do Pedro. |
+| **AutoPath** | `Autonomo/pedro/AutoPath`: no TeleOp, um botão leva o robô sozinho até locais fixos do campo, contornando o meio. |
 | **Shooter** | `Mech/Shooter`: flywheel com PIDF de velocidade e compensação de bateria. |
 | **Turret com Tracking** | `Mech/Turret/`: turret movida a motor que mira na HIVE usando a odometria Pinpoint e corrige a mira com a Limelight. |
 | **Integração Limelight** | `Mech/LimeLight`: troca de pipeline por aliança/HIVE e leitura das AprilTags. |
-| **Pedro Pathing + Ivy** | `pedro/`: odometria, seguimento de trajetórias e autônomos organizados por posição inicial. |
-| **Atuadores** | `Feeder`, `midTake`, `FlowerServo`, `RampServo`. |
-| **Ferramentas de Tuning** | OpModes para ajustar o shooter, a turret e o Pedro Pathing. |
+| **Sensor de cor + LEDs** | `Mech/Color_Sensor` conta as bolas que passam; `Mech/Led/` mostra o estado no indicador RGB ou na fita Prism. |
+| **Visão de POLLEN** | `Mech/c270/PollenDetector`: OpenCV na webcam C270 que acha o grupo de pólens amarelos. |
+| **Pedro Pathing** | `Autonomo/pedro/`: odometria, seguimento de trajetórias e tuning. |
+| **Atuadores** | `Feeder`, `MidTake`, `HoodServo`, `GateServo`, `FlowerServo`, `RampServo`. |
+| **Ferramentas de Tuning** | OpModes para ajustar shooter/midTake, turret, sensor de cor e o Pedro Pathing. |
 
 ---
 
@@ -91,7 +95,7 @@ O código não usa um framework de "subsystems". Cada mecanismo é uma **classe 
 
 1. É criada direto no OpMode (`new Chassi()`).
 2. Recebe `init(hardwareMap)` (ou o motor no construtor) para pegar o hardware.
-3. Recebe a cada loop um método de ação (`drive(x, y, rx)`, `Activate(bool)`, `update(...)`).
+3. Recebe a cada loop um método de ação (`drive(x, y, rx)`, `Activate(bool, ...)`, `update(...)`).
 
 ```
                 ┌──────────────┐     pose (x, y, heading)    ┌───────────────┐
@@ -121,25 +125,59 @@ O OpMode que melhor mostra essas peças juntas é o [`Testes/TestTrackingOnChass
 
 A posição inicial é escolhida na constante `START` (`RED_DOWN`, `RED_UP`, `BLUE_DOWN`, `BLUE_UP`). O OpMode também ativa o **bulk caching** do `LynxModule`, que junta as leituras do Hub numa só por loop.
 
+#### Movimentação: robot-centric e field-centric
+
+Existem duas formas de mover o robô:
+
+| Classe | Como funciona |
+| :--- | :--- |
+| `Mech/Chassi` | Mecanum **robot-centric** direto nos 4 motores. O giro (`rx`) é elevado à 4ª potência para dar precisão em giros lentos. |
+| `Mech/FieldCentric` | Mecanum **field-centric**: o stick segue a visão do piloto, qualquer que seja o heading. Manda a potência **pelo `Follower` do Pedro** (`follower.manual(...)`), então odometria e paths usam o mesmo drivetrain. `resetHeading()` define a "frente" do piloto. O OpMode continua chamando `follower.update()` todo loop. |
+
+> No Pedro, lateral positivo = **esquerda** e giro positivo = **anti-horário**. Por isso os OpModes invertem alguns sinais do gamepad.
+
+#### AutoPath: ir sozinho até um local do campo
+
+📄 [`Autonomo/pedro/AutoPath.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomo/pedro/AutoPath.java)
+
+- `GoToPosition(b1..b8)`: na borda de subida de um botão, cria um path da pose atual até um dos **8 locais fixos**. Hoje estão preenchidos `RED_PARK`, `BLUE_PARK`, `RED_MIDDLE` e `BLUE_MIDDLE` (de `HiveTracking.StartPose`); os slots `null` são ignorados.
+- A rota passa pelos **4 cantos** do campo e nunca cruza o retângulo central proibido (estruturas + margem). A menor rota é achada com **Dijkstra**, e cada reta é testada contra o retângulo com **Liang-Barsky**. Entre os dois `MIDDLE` o robô vai reto, por baixo da HIVE.
+- O heading fica travado no valor do momento do clique, e todos os trechos viram **um path só** (não para nos cantos).
+- `HoldPosition(...)`: trava o robô na posição.
+- Quem decide o override é o OpMode: mexer o stick interrompe o path.
+
+> ⚠️ O retângulo proibido (`X_MIN..X_MAX`, `Y_MIN..Y_MAX`) ainda é um chute; trocar pelas medidas reais.
+
+OpMode de referência: [`Testes/TestFieldAutoPath.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Testes/TestFieldAutoPath.java) (`AutoPath&FieldCentric`):
+
+| Controle (gamepad1) | Função |
+| :--- | :--- |
+| D-pad ← → ↓ ↑ | Vai até `RED_PARK`, `BLUE_PARK`, `RED_MIDDLE`, `BLUE_MIDDLE` |
+| **A** (liga/desliga) | Trava a posição atual |
+| **B** (liga/desliga) | Alterna FIELD / ROBOT-centric |
+| options | Reseta a "frente" do piloto |
+| Analógicos | Movimentação manual (interrompe o path) |
+
 ---
 
 ### 4. 🚀 Shooter
 
 📄 [`Mech/Shooter.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Mech/Shooter.java) usa o motor `"shooter"` (`DcMotorEx`).
 
-- **PIDF de velocidade:** usa o controle de velocidade do próprio Hub (`setVelocityPIDFCoefficients`) com **P = 60**, I = D = 0 e **F base = 16.67**. O alvo é **1578 ticks/s**.
+- **PIDF de velocidade:** usa o controle de velocidade do próprio Hub (`setVelocityPIDFCoefficients`) com **P = 60**, I = D = 0 e **F base = 16.67**. A velocidade-alvo vem de quem chama: `Activate(ligado, velocidadeAlvo)`.
 - **Compensação de bateria:** com a bateria baixa, o motor rende menos para a mesma potência. Por isso o termo F é ajustado pela tensão:
 
   ```
-  F = 16.67 × (12.67 / tensão_atual)
+  F = 16.67 × (12.97 / tensão_filtrada)
   ```
 
-  A tensão é lida a cada **500 ms**, porque a leitura no Hub é lenta, e os coeficientes só são reenviados quando o F muda mais que **0.05**.
-- `Activate(true)` liga o shooter na velocidade-alvo e `Activate(false)` zera a velocidade.
+  A tensão é lida a cada **500 ms**, porque a leitura no Hub é lenta. Leituras abaixo de 7 V são ignoradas e as outras passam por um filtro (`0.8·antiga + 0.2·nova`) para suavizar as quedas ao acelerar. Os coeficientes só são reenviados quando o F muda mais que **0.05**.
+- `Activate(true, v)` liga o shooter na velocidade `v` e `Activate(false, v)` zera a velocidade.
+- O `VoltageSensor` pode ser passado no construtor; se não for, o `init` busca um sozinho.
 
-**Tuning:** `PIDS/TunningShooters.java` (`Shooter PIDF Tuning`) é um TeleOp para ajustar a velocidade-alvo, o P e o F ao vivo pelo gamepad1. Ele usa a configuração antiga de **dois** motores (`"leftShooter"`/`"rightShooter"`), que também aparece nos autônomos de `WarmUp_WithoutPedro/`.
+**Tuning:** [`Testes/TunningShooters.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Testes/TunningShooters.java) (`Shooter PIDF Tuning`) ajusta ao vivo o P e o F do **shooter** (gamepad1) e do **midTake** (gamepad2) pelo D-pad, com a mesma velocidade-alvo para os dois (A/Y mudam ±20). Usa os métodos `Tune(...)` das classes.
 
-> ⚠️ Veja os [pontos de atenção](#pontos-de-atenção-identificados-no-código) sobre o shooter antes de usá-lo em partida.
+O `MidTake` também é controlado por velocidade (PIDF do Hub), não mais por potência fixa.
 
 ---
 
@@ -202,20 +240,26 @@ O ângulo é **unwrapped**, ou seja, pode passar de ±360°. Assim, `setTarget` 
 
   | StartPose | Aliança | x | y | heading |
   | :--- | :--- | :---: | :---: | :---: |
-  | `RED_DOWN` | Vermelha | 60 | 9 | 90° |
-  | `RED_UP` | Vermelha | 60 | 132.5 | −90° |
+  | `RED_DOWN` | Vermelha | 56 | 9 | 90° |
+  | `RED_UP` | Vermelha | 56 | 132.5 | −90° |
   | `BLUE_DOWN` | Azul | 82 | 9 | 90° |
   | `BLUE_UP` | Azul | 84 | 132.5 | −90° |
+  | `RED_PARK` | Vermelha | 15 | 95 | 0° |
+  | `RED_MIDDLE` | Vermelha | 70.7 | 117.7 | 0° |
+  | `BLUE_PARK` | Azul | 130 | 45.5 | 180° |
+  | `BLUE_MIDDLE` | Azul | 70.7 | 23.5 | 0° |
+
+  Os `*_PARK` e `*_MIDDLE` não são posições iniciais: são locais do campo usados pelo `AutoPath`.
 
 - **Qual alvo mirar:** cada aliança tem dois pontos de mira, "cima" (`UP`) e "baixo" (`DOWN`). O alvo troca conforme o Y do robô passa da linha média entre eles, com **histerese de 3 in** para não ficar alternando perto da linha. _(Inferência: `UP`/`DOWN` correspondem às duas CELLS da HIVE da aliança, já que cada CELL tem seu próprio cluster de AprilTags.)_
-- **AprilTags:** vermelho `DOWN` = **30–33** e vermelho `UP` = **34–37**, com a posição de cada tag cadastrada no código. Os IDs das CELLS azuis ainda estão como `TODO`. Pelo manual, uma das CELLS azuis usa **38–41**.
+- **AprilTags:** vermelho `DOWN` = **30–33**, vermelho `UP` = **34–37**, azul `DOWN` = **38–41** e azul `UP` = **42–45**. Ainda falta validar o tracking azul em campo e criar o field map azul.
 - **Offset da turret:** o eixo da turret fica **24,8 cm à frente** do centro do robô (`TURRET_OFFSET_X_IN`), e os ângulos e distâncias são calculados a partir desse eixo.
 - **Para o shooter:** `distanceFromTurretToHive(...)` dá a distância do eixo da turret até o alvo.
 
 #### Odometria Pinpoint
 
 - 📄 [`Mech/PinpointConf.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Mech/PinpointConf.java) cria um `PinpointLocalizer` do Pedro (dispositivo `"pinpoint"`) com os offsets dos pods. É o que a TeleOp de tracking usa.
-- 📄 `pedro/Constants.java` tem a **sua própria** `PinpointConfig`, usada pelo `Follower` dos autônomos, com offsets diferentes do `PinpointConf`.
+- 📄 `Autonomo/pedro/Constants.java` tem a **sua própria** `PinpointConfig`, usada pelo `Follower` dos autônomos, com offsets diferentes do `PinpointConf`.
 
 #### `VisionPoseCorrector`: correção da pose pela visão
 
@@ -254,51 +298,83 @@ Usa o **botpose** (MegaTag1) da Limelight para corrigir a pose do Pinpoint:
 
 ### 7. 🛣️ Autônomos
 
-Os autônomos usam **Pedro Pathing**, uma biblioteca de seguimento de trajetórias com curvas Bézier e localização por odometria. O `Follower` configurado sai sempre de `Constants.create(hardwareMap)` ([`pedro/Constants.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/Constants.java)), que junta o localizador Pinpoint, o drivetrain Mecanum e o controlador de movimento `Foresight`.
+Os autônomos usam **Pedro Pathing**, uma biblioteca de seguimento de trajetórias com curvas Bézier e localização por odometria. O `Follower` configurado sai sempre de `Constants.create(hardwareMap)` ([`Autonomo/pedro/Constants.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomo/pedro/Constants.java)), que junta o localizador Pinpoint, o drivetrain Mecanum e o controlador de movimento `Foresight`.
 
-#### Estilo atual: Pedro Ivy (recomendado)
+> ⚠️ **Depende da branch.** Na branch `Test` **não há nenhum `@Autonomous`**: as rotinas Ivy foram retiradas na reorganização. Elas continuam na branch `main`.
 
-**Pedro Ivy** é um agendador de comandos: ele permite descrever o autônomo como uma sequência de ações (`sequential(...)`) em vez de laços manuais. O modelo é o [`pedro/Others/Ivy/Model.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/Others/Ivy/Model.java):
+#### Pedro Ivy (branch `main`)
+
+**Pedro Ivy** é um agendador de comandos: ele permite descrever o autônomo como uma sequência de ações (`sequential(...)`) em vez de laços manuais. O modelo a copiar é o `Autonomo/pedro/Ivy/Ivy_model.java`:
 
 ```java
 // init():  Scheduler.reset(); follower = Constants.create(hardwareMap); follower.setPose(start);
 // start(): schedule(sequential(follow(follower, path1), waitMs(600), follow(follower, path2)));
-// loop():  follower.update(); Scheduler.execute();
+// loop():  follower.update(); Scheduler.execute(); atualizarMecanismos();
 ```
 
-| OpMode (Driver Station) | Arquivo | Posição inicial |
-| :--- | :--- | :--- |
-| `RedDown` | `Ivy/RedDown/RedDown.java` | Vermelha, baixo |
-| `RedDownTakeGoFlower` | `Ivy/RedDown/RedFlower.java` | Vermelha, baixo |
-| `SoloRedDown` | `Ivy/RedDown/SoloRedDown.java` | Vermelha, baixo |
-
-- Cada arquivo tem uma classe companheira, privada do pacote (ex.: `PathsRedDown`), com as `Pose`s e os `Path`s.
-- **Seleção de rota:** não existe um seletor automático. Cada posição ou estratégia é um **OpMode separado**, escolhido no Driver Station, e há uma subpasta por posição inicial.
-- Até agora as rotinas Ivy **só movem o robô**: os comandos agendados são `follow` e `waitMs`, sem acionar shooter ou intake.
-
-#### Outros autônomos
-
-| Pasta | Conteúdo |
+| Pasta (em `Ivy/`) | Rotinas |
 | :--- | :--- |
-| `pedro/Others/` | Estilo anterior com `LinearOpMode` e um helper `seguirPath(...)` (`AzulBaixoMov`, `AzulCimaMov` etc.). A maioria está `@Disabled`. |
-| `pedro/WarmUp_WithoutPedro/` | Rotinas **sem Pedro**, por tempo e potência, usadas como reserva: `HiveUpOneTip`, `HiveUpTwoTips`, `HiveDownOneTip`, `azulCimaPARK`. Ligam o shooter de dois motores, alimentam e depois se movem. |
-| `pedro/procedures/` + `Tuning.java` | Procedimentos de auto-tuning do Pedro Pathing (`PinpointTuner`, `MecanumTuner`, `ForesightTuner`...). São basicamente código da biblioteca. |
+| `RedDown/` | `RedDownMech`, `RedFlower`, `SoloRedDownMech`, `SoloRedDown` |
+| `RedUp/` | `RedUpMech` |
+| `BlueUp/` | `BlueUpMech` |
+
+- Sufixo `*Mech` = o loop completo de mecanismos (turret, shooter, feeder, gate) roda junto com o path. Sem sufixo = só movimento.
+- **Seleção de rota:** não existe seletor automático. Cada posição ou estratégia é um **OpMode separado**, escolhido no Driver Station.
+
+#### Ferramentas do Pedro (as duas branches)
+
+| Arquivo | Conteúdo |
+| :--- | :--- |
+| `Autonomo/pedro/procedures/` + `Tuning.java` | Procedimentos de auto-tuning do Pedro Pathing (`PinpointTuner`, `MecanumTuner`, `ForesightTuner`...). São basicamente código da biblioteca. |
+| `Autonomo/pedro/AutoPath.java` | Paths automáticos dentro do TeleOp (ver [seção 3](#3-️-arquitetura-do-robô)). |
 
 ---
 
-### 8. 🔧 Atuadores
+### 8. 🔧 Atuadores, Sensores e LEDs
 
 | Classe | Hardware (`hardwareMap`) | Tipo | Comportamento |
 | :--- | :--- | :--- | :--- |
-| `Feeder` | `"feeder"` | `DcMotor` | `activate(LT, LB)`: +0.8 / −0.8 / 0 |
-| `midTake` | `"midTake"` | `DcMotor` | `Spin(RBp1, Yp2)`: 0.4 enquanto um dos botões estiver pressionado |
+| `Feeder` | `"feeder"` | `DcMotorEx` | `activate(LB, RB)`: +0.8 / −0.8 / 0. A porta de encoder dele lê o encoder externo do hood (`getHoodPos()`). |
+| `MidTake` | `"midTake"` | `DcMotorEx` | `spin(btn1, btn2)`: velocidade fixa (PIDF do Hub) enquanto um dos botões estiver pressionado |
+| `HoodServo` | `"hoodServo"` | `CRServo` | PID na posição do encoder externo do hood (zona morta de 15 ticks). Para se o alvo for `NaN`. |
+| `GateServo` | `"gateServo"` | `Servo` | Abre o portão do feeder quando o shooter já acelerou |
 | `FlowerServo` | `"FlowerServo"` | `CRServo` | `Spin(Ap1)`: 0.5 enquanto o botão estiver pressionado |
 | `RampServo` | `"rightRampServo"` | `Servo` | `Position(on)`: aberto 0.83 / fechado 0.4 |
 | `TurnOn_TurnOff` | — | utilitário | Detecta a borda de subida do botão e alterna (*toggle*) um booleano |
 | `IMU_Initializer` | `"imu"` | `IMU` | Inicializa a IMU do Hub (logo RIGHT, USB BACKWARD) e lê o yaw |
-| `PIDS/RobotPID` | — | utilitário | PID de heading independente, para loops simples |
 
-_(Inferência pelos nomes: o `Feeder` e o `midTake` levam os elementos até o shooter, e o `FlowerServo` está ligado à interação com as FLOWERS.)_
+**`ValuesToShoot`:** tabela `distância → {posição do hood, velocidade do shooter}` com interpolação. Entradas `NaN` = ainda não medidas.
+
+#### Sensor de cor: contador de bolas
+
+📄 [`Mech/Color_Sensor.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Mech/Color_Sensor.java) usa o REV Color Sensor V3 `"colorSensor"`.
+
+- Uma bola é detectada quando o **hue** está na faixa `[min, max]` com saturação mínima, **ou** quando a distância é menor que **50 mm**.
+- `CountBall(invertido, ...)` conta na borda de subida (bola nova passando), de **0 a 4**. Com `invertido = true`, desconta.
+- `ResetBallCounter()` zera; `IsThereBall(...)` só diz se há bola agora.
+- Tuning: `Testes/TestColorSensor` (`Test Color sensor`) ajusta `min`, `max` e saturação ao vivo pelo gamepad1.
+
+#### LEDs
+
+| Classe | Hardware | Como funciona |
+| :--- | :--- | :--- |
+| `Led/RGB_Indicator` | `"Indicator"` (`Servo`) | Indicador RGB controlado por posição de servo: vermelho, laranja, amarelo, verde ou desligado. |
+| `Led/Prism` | `"prism"` (`GoBildaPrismDriver`, I2C) | Fita de LED goBILDA Prism: cor sólida e brilho (±10 por clique). Só manda pelo I2C quando algo muda, para não travar o loop. |
+
+`GoBildaPrismDriver`, `PrismAnimations`, `ColorPrism` e `Direction` são código do fabricante (licença MIT, Base 10 Assets).
+
+**Teste integrado:** `Testes/TestLedColorSensor` (`Led&ColorSensor`) liga o contador ao indicador: 0 bolas = apagado, 1 = vermelho, 2 = laranja, 3 = amarelo, 4 = verde. A (liga/desliga) inverte a contagem, options zera.
+
+#### Visão de POLLEN (webcam C270)
+
+📄 [`Mech/c270/PollenDetector.java`](TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Mech/c270/PollenDetector.java) é um `VisionProcessor` OpenCV para a webcam `"Webcam 1"`:
+
+1. Máscara de amarelo em HSV e limpeza por morfologia.
+2. Cada mancha redonda vira um pólen; manchas grudadas são separadas (`distanceTransform`).
+3. Pólens próximos viram grupos (Union-Find) e o maior grupo é escolhido.
+4. Calcula o `tx` do grupo dominante.
+
+Roda na thread da câmera e publica um `Result` imutável numa variável `volatile`. Os parâmetros são `public static` e podem ser ajustados ao vivo pelo `TestPollenTracking` (só voltam ao padrão quando o app reinicia).
 
 ---
 
@@ -308,25 +384,21 @@ _(Inferência pelos nomes: o `Feeder` e o `midTake` levam os elementos até o sh
 MEGA2026-27/
 ├── FtcRobotController/        # App padrão do SDK da FTC (evitar alterar)
 │   └── .../external/samples/  # Exemplos oficiais da FTC
-├── TeamCode/src/main/java/org/firstinspires/ftc/teamcode/
-│   ├── Mech/                  # Subsistemas: Chassi, Shooter, Feeder, midTake, servos, LimeLight, PinpointConf...
-│   │   └── Turret/            # TurretConfig, TurretController, TurretTracking, HiveTracking, VisionPoseCorrector
-│   ├── pedro/                 # Pedro Pathing
-│   │   ├── Constants.java     # Configuração única do Follower
-│   │   ├── Tuning.java        # OpMode de tuning do Pedro
-│   │   ├── procedures/        # Procedimentos de tuning (código da biblioteca)
-│   │   ├── Others/            # Autônomos (estilo antigo)
-│   │   │   └── Ivy/           # Autônomos com Pedro Ivy (estilo atual), uma subpasta por posição
-│   │   └── WarmUp_WithoutPedro/  # Autônomos de reserva sem Pedro
-│   ├── PIDS/                  # RobotPID e TunningShooters
-│   ├── Testes/                # Bancadas de teste manuais (TestTrackingOnChassi, podsTest, testMotor)
-│   ├── TeleOpWarmUp/          # TeleOps em desenvolvimento
-│   ├── Another_Codes/         # TeleOps simples (Movimento Mecanum, TestFeeder)
-│   └── c270/                  # Experimento de AprilTag com webcam (VisionPortal), @Disabled
+├── TeamCode/src/main/java/org/firstinspires/ftc/teamcode/   (branch Test)
+│   ├── Mech/                  # Chassi, FieldCentric, Shooter, Feeder, MidTake, Color_Sensor, LimeLight, PinpointConf...
+│   │   ├── Turret/            # TurretConfig, TurretController, TurretTracking, HiveTracking, VisionPoseCorrector
+│   │   ├── Servos/            # HoodServo, GateServo, FlowerServo, RampServo (+ ToTurret/: turret por servo, antiga)
+│   │   ├── Led/               # RGB_Indicator, Prism + driver goBILDA Prism
+│   │   └── c270/              # PollenDetector (OpenCV) e testes da webcam
+│   ├── Autonomo/pedro/        # Constants, AutoPath, Tuning + procedures/
+│   └── Testes/                # Bancadas de teste manuais (TestTrackingOnChassi, TestFieldAutoPath, TestLedColorSensor...)
 ├── Limelight/                 # Field map (.fmap) das AprilTags vermelhas
 ├── doc/                       # Documentação legal e mídia do SDK + README original do SDK
 ├── build.dependencies.gradle  # Dependências (FTC SDK, Pedro, Panels)
 └── build.common.gradle        # Configuração Android compartilhada (não editar)
+```
+
+Na branch `main` a estrutura é outra: `TeleOperados/` (TeleOp_BLUE / TeleOp_RED), `Autonomo/pedro/Ivy/`, `PIDS/`, `Another_Codes/` e os subsistemas principais em `Mech/ImportantMech/`.
 ```
 
 ---
@@ -400,13 +472,16 @@ Todo o código da Mega Snakes deve seguir as convenções de nomenclatura Java e
   | Nome | Dispositivo |
   | :--- | :--- |
   | `leftFront`, `leftBack`, `rightFront`, `rightBack` | Motores do chassi |
-  | `shooter` | Shooter (classe `Shooter`) |
-  | `leftShooter`, `rightShooter` | Shooter de 2 motores (autônomos de reserva e tuning) |
+  | `shooter` | Shooter |
   | `turretMotor` | Motor da turret |
   | `feeder`, `midTake` | Motores de alimentação |
-  | `FlowerServo`, `rightRampServo` | Servos |
+  | `hoodServo`, `gateServo`, `FlowerServo`, `rightRampServo` | Servos |
+  | `colorSensor` | REV Color Sensor V3 |
+  | `Indicator` | Indicador RGB (servo) |
+  | `prism` | Fita de LED goBILDA Prism (I2C) |
   | `pinpoint` | GoBilda Pinpoint |
   | `limelight` | Limelight 3A |
+  | `Webcam 1` | Webcam C270 |
   | `imu` | IMU do Hub |
 
   Renomear no código sem atualizar a configuração do robô, ou o contrário, **compila normalmente, mas quebra o OpMode na hora de rodar**.
@@ -416,8 +491,8 @@ Todo o código da Mega Snakes deve seguir as convenções de nomenclatura Java e
   - O ângulo da turret também é unwrapped (±400°).
   - Quando é preciso ângulo entre −180° e 180°, use os helpers `normalize180`.
   - Não misture as duas formas.
-- **Ajustes ficam centralizados:** turret em `TurretConfig` e Pedro em `pedro/Constants.java`.
-- **Autônomos novos** usam o estilo **Pedro Ivy**, com uma subpasta por posição inicial.
+- **Ajustes ficam centralizados:** turret em `TurretConfig` e Pedro em `Autonomo/pedro/Constants.java`.
+- **Autônomos novos** usam o estilo **Pedro Ivy** (branch `main`), com uma subpasta por posição inicial.
 
 ---
 
@@ -425,7 +500,7 @@ Todo o código da Mega Snakes deve seguir as convenções de nomenclatura Java e
 
 **Fluxo de trabalho:**
 
-1. Atualize sua cópia (`git pull`) e trabalhe numa branch. A branch atual do robô oficial é `Robo_oficial1.0`; a principal é `master`.
+1. Atualize sua cópia (`git pull`) e trabalhe numa branch. Branches: `main` (código de competição: TeleOps e autônomos Ivy) e `Test` (reorganização e testes novos: field-centric, AutoPath, sensor de cor, LEDs).
 2. Compile antes de subir (`./gradlew :TeamCode:assembleDebug`).
 3. Teste no robô e escreva no commit **o que foi testado e como**.
 4. OpModes experimentais devem receber `@Disabled` antes de irem para a branch de competição, para não encher a lista do Driver Station.
@@ -441,17 +516,22 @@ Todo o código da Mega Snakes deve seguir as convenções de nomenclatura Java e
 | Turret "caçando" em volta do alvo | `deadbandDeg`: abaixo de ~0,68° (1 tick) ela oscila. Depois reduza o `kP`. |
 | Mira puxa para um lado com a Limelight | A posição da tag está cadastrada? A telemetria mostra "Pos da tag cadastrada". Confira também o `.fmap`. |
 | Limelight sem resultado (`null`) | A telemetria mostra "LL conectada / rodando" e o pipeline pedido. Ela foi ligada com `TurnON` no init? |
-| Pose do autônomo diferente da TeleOp | `PinpointConf` e `pedro/Constants.java` têm offsets de pods diferentes. |
+| Pose do autônomo diferente da TeleOp | `PinpointConf` e `Autonomo/pedro/Constants.java` têm offsets de pods diferentes. |
+| Contador de bolas pulando/errando | Ajuste `min`/`max`/saturação no `Test Color sensor`. A regra de distância (< 50 mm) conta qualquer objeto perto. |
 | Tracking errado na aliança azul | Os IDs das tags azuis (`BLUE_*_TAGS`) e o field map azul ainda não foram preenchidos. |
 
 #### Pontos de atenção identificados no código
 
 Estes pontos foram encontrados na leitura do código e **ainda não foram corrigidos**:
 
-- `Mech/Shooter.java`: o campo `battery` (`VoltageSensor`) nunca recebe valor no `init`. Por isso `Activate(true)` deve lançar `NullPointerException` ao ler a tensão.
-- `PIDS/TunningShooters.java`: o `midTake` é usado (`setDirection`) sem ser buscado no `hardwareMap`.
-- `pedro/Others/AzulBaixoWarmUpLIME.java` (`@Disabled`): busca a Limelight como `" limelight"`, com espaço no começo.
-- `HiveTracking`: os IDs das AprilTags das CELLS azuis estão como `TODO`.
+- `Mech/LimeLight.java` → `getDistance()`: passa o ângulo em **graus** para `Math.sin`, que espera radianos. A distância sai errada.
+- `Mech/LimeLight.java` → `getSin()` (não usado): lê o mapa com chave `double` num mapa de `Integer` e faz unboxing de `null`, o que lança `NullPointerException`.
+- `Mech/Feeder.java`: `getHoodPos()` depende do encoder do hood ligado na porta do feeder (`TODO` no código).
+- `Mech/Servos/HoodServo.java`: `MaxServoTICKS` ainda não foi medido (`TODO`).
+- `Mech/ValuesToShoot.java`: a maioria das entradas ainda é `NaN` (não medida).
+- `Autonomo/pedro/AutoPath.java`: o retângulo proibido do meio é um chute.
+- Tracking azul: IDs preenchidos, mas sem field map azul e sem teste em campo.
+
 
 ---
 
