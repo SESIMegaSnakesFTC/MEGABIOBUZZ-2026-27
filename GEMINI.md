@@ -23,7 +23,8 @@ Responda conciso como smart caveman. Todo conteúdo técnico permanece. Apenas r
 - Sempre que o dev passar uma tarefa e não indicar um arquivo, lembrá-lo.
 - Se houver alternativas melhores antes de alterar, apresentar a ideia de implementação.
 - Resumos pós-alteração: em tópicos objetivos e enumerados.
-- Formato de commit:
-  - `Add:` novos arquivos/classes
-  - `Fix:` problemas corrigidos
-  - `Implement:` nova lógica
+- Git é tarefa **somente do dev**: nunca commitar, nunca dar push, nunca subir nada para o GitHub e nunca sugerir mensagem de commit. Não interferir (evita conflitos).
+- Nunca chamar a turret de "torre"; sempre dizer "turret".
+- Textos para copiar (documentos, celular): entregar em bloco ```text``` sem indentação aninhada.
+- Ao explicar mecanismo para documento/juízes: tom técnico, focar em como funciona, sem listar o que falta e sem citar posições ainda não testadas.
+- Manter `agentes.md` atualizado após mudanças relevantes (contexto compartilhado com as outras IAs).
