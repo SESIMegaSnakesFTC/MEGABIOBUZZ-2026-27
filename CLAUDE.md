@@ -10,6 +10,10 @@ Two Gradle modules (see `settings.gradle`):
 - **`FtcRobotController`** — the stock FTC SDK app module. Avoid modifying unless the task is explicitly about SDK-level behavior; prefer putting robot logic in `TeamCode`.
 - **`TeamCode`** — the team's actual code, under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`. This is where almost all work happens.
 
+## Branches
+
+- `main` — competition code (this layout). `Test` — reorganized experimentation branch (flat `Mech/`, `Testes/`). `Regional` — from `Test`, adds `Autonomous/` rename, `Ivy/RED` autonomous and `TeleOp/Teleoperado(Led)`. Check `git branch` before assuming a file exists; see `agentes.md` for status.
+
 ## Build / install commands
 
 - There is **no unit/instrumented test suite**. "Testing" means deploying an OpMode and running it on the physical robot (or in the Driver Station app) — there is nothing to run headlessly. Classes under `Testes/` (and other `@Disabled`/experimental OpModes scattered through the tree) are manual hardware test rigs, not automated tests.
@@ -19,8 +23,8 @@ Two Gradle modules (see `settings.gradle`):
 
 Code under `teamcode/` is organized by role, not by season feature, and most packages mix Portuguese and English names (team is Brazilian). New comments go in Portuguese (see team rules below); class/method names follow whatever the surrounding file already uses. No subsystem is a DI/"robot container" — every `Mech/*` class is a plain object (`new Chassi()`, etc.) instantiated directly inside each OpMode, following `init(hardwareMap)` + per-loop methods (`drive(x,y,rx)`, `Activate(bool)`, `update(...)`).
 
-- **`Mech/`** — thin hardware-subsystem wrappers. `Chassi` (mecanum drive, power-normalized), `Shooter` (velocity-PIDF flywheel on motor `"shooter"`; battery-voltage feedforward compensation; takes an optional `VoltageSensor` in its constructor, falling back to looking one up itself in `init` if none is passed), `Feeder`/`MidTake` (feeding motors), `ValuesToShoot` (a `TreeMap<distance, {hoodPos, motorPower}>` lookup table with floor/ceiling interpolation — the single place that maps Limelight distance to shooter/hood targets; `Double.NaN` entries mean "not measured yet", callers must hold the last good value), `LimeLight` (wraps `Limelight3A`, pipeline switching per alliance/side), `IMU_Initializer`, `PinpointConf` (GoBilda Pinpoint localizer factory used by TeleOp — note it has its own pod offsets, separate from `Autonomo/pedro/Constants.java`'s `PinpointConfig` used by autonomous; keep both in sync when retuning odometry), `TurnOn_TurnOff` (generic rising-edge toggle-latch helper used everywhere a gamepad button should flip a boolean state).
-  - **`Mech/Servos/`** — `GateServo` (feeder gate, opens once the shooter has had time to spin up), `HoodServo` (driven by `ValuesToShoot`). `Servos/ToTurret/` is a superseded servo-turret experiment.
+- **`Mech/`** — thin hardware-subsystem wrappers. `Chassi` (mecanum drive, power-normalized), `Shooter` (velocity-PIDF flywheel on motor `"shooter"`; battery-voltage feedforward compensation; takes an optional `VoltageSensor` in its constructor, falling back to looking one up itself in `init` if none is passed), `Feeder`/`MidTake` (feeding motors), `ValuesToShoot` (a `TreeMap<distance, {hoodPos, motorPower}>` lookup table with floor/ceiling interpolation — the single place that maps Limelight distance to shooter/hood targets; `Double.NaN` entries mean "not measured yet", callers must hold the last good value), `LimeLight` (wraps `Limelight3A`, pipeline switching per alliance/side). `getDistance()` returns inches (camera→hive hypotenuse): `(heightHive − heightLimelight) / sin(cameraTilt + ty) / 2.54`, angle in **degrees**, sine read from the `SENO` table (45°–70°, linear interpolation; outside that range falls back to `Math.sin(Math.toRadians(...))`). The distance feeds `ValuesToShoot` (hood + shooter), so the hood is **distance-driven**, not aim-angle-driven. The radians/`null` bugs were fixed (2026-11-20): distances changed, so `ValuesToShoot` points measured before that may need re-calibration. Also: `IMU_Initializer`, `PinpointConf` (GoBilda Pinpoint localizer factory used by TeleOp — note it has its own pod offsets, separate from `Autonomo/pedro/Constants.java`'s `PinpointConfig` used by autonomous; keep both in sync when retuning odometry), `TurnOn_TurnOff` (generic rising-edge toggle-latch helper used everywhere a gamepad button should flip a boolean state).
+  - **`Mech/Servos/`** — `GateServo` (feeder gate, opens once the shooter has had time to spin up — a fixed 1.5 s timer in the TeleOps, untested positions), `HoodServo` (driven by `ValuesToShoot`). `Servos/ToTurret/` is a superseded servo-turret experiment.
 - **`Mech/Turret/`** — the turret aiming subsystem, the most involved piece of logic in the repo:
   - `TurretConfig` — all tunable constants (PID-ish gains `kP/kD/kS/kV`, angle limits, deadband, vision/tracking timing like `maxStaleMs`/`lostTimeoutMs`/`confirmFrames`, plus a `PoseCorrection` sub-block for `VisionPoseCorrector`'s gains/filters). Treat as the single place to retune turret behavior.
   - `TurretController` — owns the turret `DcMotorEx`; converts an angle target into motor power using proportional + static-friction + velocity-damping + chassis-rotation-feedforward terms, with battery-voltage compensation and soft limits at `minDeg`/`maxDeg`. Degrees are tracked unwrapped (can exceed ±360) so `setTarget` picks the nearest equivalent angle within range.
@@ -54,10 +58,9 @@ Code under `teamcode/` is organized by role, not by season feature, and most pac
 - Sempre que eu passar uma tarefa e não indicar um arquivo, lembre-me.
 - Sempre peça permissão antes de editar o código ou implementar mudanças.
 - Após uma alteração, faça um breve resumo das alterações, em tópicos enumerados de forma objetiva.
-- Mensagens de commit: título curto + corpo dividido em partes enumeradas (incluir só as que se aplicam):
-  1. `Add:` arquivos/classes novos adicionados
-  2. `Fix:` problemas corrigidos e em quais arquivos
-  3. `Implement:` lógica nova implementada e em quais classes
-  4. `Refactor:` arquivos movidos/renomeados, reorganização sem mudar lógica
-- Antes de commitar, propor a mensagem nesse formato e aguardar aprovação; só depois fazer o push.
+- Git é tarefa **somente do dev**: nunca commitar, nunca dar push, nunca subir nada para o GitHub e nunca sugerir mensagem de commit. Não interferir (evita conflitos). Só editar arquivos no working tree quando pedido.
 - Sempre usar o caveman, exceto quando for lhe pedido para desligar
+- Nunca chamar a turret de "torre"; sempre dizer "turret".
+- Textos para copiar (documentos, celular): entregar em bloco ```text``` sem indentação aninhada.
+- Ao explicar mecanismo para documento/juízes: tom técnico, focar em como funciona, sem listar o que falta e sem citar posições ainda não testadas.
+- Manter `agentes.md` atualizado após mudanças relevantes (contexto compartilhado com as outras IAs).
