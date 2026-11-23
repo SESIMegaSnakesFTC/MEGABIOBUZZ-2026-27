@@ -139,12 +139,18 @@ public class LimeLight {
 
     public double getDistance(){
         double degree = inclinationLimelight + limelight3A.getLatestResult().getTy();
-        return (heightHive - heightLimelight)/Math.sin(degree)/2.54;//Hipotenusa
+        // seno vem da tabela SENO (ângulo em graus)
+        return (heightHive - heightLimelight)/getSin(degree)/2.54;//Hipotenusa
     }
-    private double getSin(double angle){
-        angle = Math.round(angle);
-        double value = SENO.get(angle);
 
-        return  SENO.get(angle) != null ? SENO.get(angle) : 1;
+    // Seno pela tabela com interpolação linear entre graus inteiros
+    private double getSin(double angle){
+        int lo = (int) Math.floor(angle);
+        Double a = SENO.get(lo), b = SENO.get(lo + 1);
+
+        // fora da tabela (45° a 70°): calcula direto, sem erro
+        if (a == null || b == null) return Math.sin(Math.toRadians(angle));
+
+        return a + (b - a) * (angle - lo);
     }
 }

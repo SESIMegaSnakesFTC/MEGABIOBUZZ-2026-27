@@ -23,14 +23,7 @@ public class RGB_Indicator  {
         Indicator.setPosition(0);
     }
 
-    public void setColor(boolean Off, boolean red, boolean orange, boolean yellow, boolean green ){
 
-        if (red) Indicator.setPosition(RED);
-        if (orange) Indicator.setPosition(ORANGE);
-        if (yellow) Indicator.setPosition(YELLOW);
-        if (green) Indicator.setPosition(GREEN);
-        if (Off) Indicator.setPosition(OFF);
-    }
 
     public void setColorBasedInNumber(int Number){
         /*Has to be a number in this period -> 0 until 4 */
@@ -39,27 +32,27 @@ public class RGB_Indicator  {
 
             case 0:
                 //No collor
-                setColor(true, false, false, false, false);
+                Indicator.setPosition(OFF);
                 break;
 
             case 1:
                 //RED
-                setColor(false, true, false, false, false);
+                Indicator.setPosition(RED);
                 break;
 
             case 2:
                 //ORANGE
-                setColor(false, false, true, false, false);
+                Indicator.setPosition(ORANGE);
                 break;
 
             case 3:
                 //YELLOW
-                setColor(false, false, false, true, false);
+                Indicator.setPosition(YELLOW);
                 break;
 
             case 4:
                 //VERDE
-                setColor(false, false, false, false, true);
+                Indicator.setPosition(GREEN);
                 break;
 
         }

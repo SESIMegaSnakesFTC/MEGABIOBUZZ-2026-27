@@ -5,6 +5,8 @@
 Este repositório contém o código-fonte principal do robô da equipe **Mega Snakes** na **Temporada BIOBUZZ™ (FIRST® Tech Challenge 2026–2027)**. O módulo `TeamCode` é onde todo o nosso desenvolvimento acontece. O restante do projeto é a estrutura padrão do SDK da FTC, incluindo os recursos de aprendizado.
 
 > Este README descreve **o que está no código hoje**. Quando um trecho for uma **inferência** (algo deduzido do código, não declarado nele), ele aparece marcado como _(inferência)_.
+>
+> Na branch `Regional` a pasta `Autonomo/` chama `Autonomous/` e não existe `Testes/`; os caminhos abaixo seguem a `Test`.
 
 ---
 
@@ -143,7 +145,7 @@ Existem duas formas de mover o robô:
 - `GoToPosition(b1..b8)`: na borda de subida de um botão, cria um path da pose atual até um dos **8 locais fixos**. Hoje estão preenchidos `RED_PARK`, `BLUE_PARK`, `RED_MIDDLE` e `BLUE_MIDDLE` (de `HiveTracking.StartPose`); os slots `null` são ignorados.
 - A rota passa pelos **4 cantos** do campo e nunca cruza o retângulo central proibido (estruturas + margem). A menor rota é achada com **Dijkstra**, e cada reta é testada contra o retângulo com **Liang-Barsky**. Entre os dois `MIDDLE` o robô vai reto, por baixo da HIVE.
 - O heading fica travado no valor do momento do clique, e todos os trechos viram **um path só** (não para nos cantos).
-- `HoldPosition(...)`: trava o robô na posição.
+- `HoldPosition(...)`: trava o robô na posição. Se for empurrado mais de 3 pol em qualquer eixo, volta por um path (criado uma vez, com heading `.constant(...)`); senão usa `follower.hold`.
 - Quem decide o override é o OpMode: mexer o stick interrompe o path.
 
 > ⚠️ O retângulo proibido (`X_MIN..X_MAX`, `Y_MIN..Y_MAX`) ainda é um chute; trocar pelas medidas reais.
@@ -291,6 +293,7 @@ Usa o **botpose** (MegaTag1) da Limelight para corrigir a pose do Pinpoint:
 - `getResult()`: devolve o último `LLResult`. Leia **uma vez por loop**.
 - `getStatus()`: é uma requisição HTTP bloqueante (até ~100 ms), então **não** chame em todo loop.
 - `MediumTx()`: média do `tx` de todas as tags vistas.
+- `getDistance()`: distância (pol) da câmera até a HIVE, por trigonometria: `(alturaHive − alturaCâmera) / sen(inclinação + ty) / 2,54`, com ângulo em graus. O seno vem da tabela `SENO` (45°–70°, interpolação linear; fora disso `Math.sin`). Alimenta a `ValuesToShoot` (hood e shooter).
 
 **Field map:** [`Limelight/hives_vermelhas.fmap`](Limelight/hives_vermelhas.fmap) tem as posições das tags **30–37** (tamanho 80,3 mm) e deve ser carregado na Limelight. Os valores precisam bater com o `TAG_POS` da `HiveTracking`, então **mude os dois juntos**. Ainda não existe field map para as tags azuis.
 
@@ -337,13 +340,20 @@ Os autônomos usam **Pedro Pathing**, uma biblioteca de seguimento de trajetóri
 | `Feeder` | `"feeder"` | `DcMotorEx` | `activate(LB, RB)`: +0.8 / −0.8 / 0. A porta de encoder dele lê o encoder externo do hood (`getHoodPos()`). |
 | `MidTake` | `"midTake"` | `DcMotorEx` | `spin(btn1, btn2)`: velocidade fixa (PIDF do Hub) enquanto um dos botões estiver pressionado |
 | `HoodServo` | `"hoodServo"` | `CRServo` | PID na posição do encoder externo do hood (zona morta de 15 ticks). Para se o alvo for `NaN`. |
-| `GateServo` | `"gateServo"` | `Servo` | Abre o portão do feeder quando o shooter já acelerou |
+| `GateServo` | `"gateServo"` | `Servo` | Abre o portão do feeder depois que o shooter foi ligado (TeleOps da `main`: timer fixo de 1,5 s) |
 | `FlowerServo` | `"FlowerServo"` | `CRServo` | `Spin(Ap1)`: 0.5 enquanto o botão estiver pressionado |
 | `RampServo` | `"rightRampServo"` | `Servo` | `Position(on)`: aberto 0.83 / fechado 0.4 |
 | `TurnOn_TurnOff` | — | utilitário | Detecta a borda de subida do botão e alterna (*toggle*) um booleano |
 | `IMU_Initializer` | `"imu"` | `IMU` | Inicializa a IMU do Hub (logo RIGHT, USB BACKWARD) e lê o yaw |
 
 **`ValuesToShoot`:** tabela `distância → {posição do hood, velocidade do shooter}` com interpolação. Entradas `NaN` = ainda não medidas.
+
+**Hood (ajuste de angulação):** sistema em malha fechada que reajusta a curvatura (parábola) do tiro conforme a distância até a HIVE.
+
+1. `LimeLight.getDistance()` calcula a distância (pol) pelo ângulo vertical da tag (`ty`) somado à inclinação da câmera. O seno vem da tabela `SENO` (45°–70°) com interpolação linear.
+2. `ValuesToShoot` devolve, para essa distância, o alvo do hood e a velocidade do shooter (tabela montada a partir de testes).
+3. `HoodServo` compara o alvo com a posição real do encoder externo (`Feeder.getHoodPos()`) e um PID leva o servo até lá: zona morta de 15 ticks, integral limitada (anti-windup) e potência limitada a ±1.
+4. Se a tabela não tiver valor para a distância (`NaN`), o servo para; os TeleOps da `main` seguram o último alvo válido.
 
 #### Sensor de cor: contador de bolas
 
@@ -500,7 +510,7 @@ Todo o código da Mega Snakes deve seguir as convenções de nomenclatura Java e
 
 **Fluxo de trabalho:**
 
-1. Atualize sua cópia (`git pull`) e trabalhe numa branch. Branches: `main` (código de competição: TeleOps e autônomos Ivy) e `Test` (reorganização e testes novos: field-centric, AutoPath, sensor de cor, LEDs).
+1. Atualize sua cópia (`git pull`) e trabalhe numa branch. Branches: `main` (código de competição: TeleOps e autônomos Ivy) e `Test` (reorganização e testes novos: field-centric, AutoPath, sensor de cor, LEDs) e `Regional` (derivada da `Test`: pasta `Autonomous/`, autônomo `Ivy/RED`, TeleOps `Teleoperado` e `TeleoperadoLed`, sem `Testes/`).
 2. Compile antes de subir (`./gradlew :TeamCode:assembleDebug`).
 3. Teste no robô e escreva no commit **o que foi testado e como**.
 4. OpModes experimentais devem receber `@Disabled` antes de irem para a branch de competição, para não encher a lista do Driver Station.
@@ -520,12 +530,16 @@ Todo o código da Mega Snakes deve seguir as convenções de nomenclatura Java e
 | Contador de bolas pulando/errando | Ajuste `min`/`max`/saturação no `Test Color sensor`. A regra de distância (< 50 mm) conta qualquer objeto perto. |
 | Tracking errado na aliança azul | Os IDs das tags azuis (`BLUE_*_TAGS`) e o field map azul ainda não foram preenchidos. |
 
+#### Correções recentes (2026-11-20)
+
+- `Mech/LimeLight.java` → `getDistance()`: passava graus para `Math.sin` (radianos). Agora usa `getSin()`, que lê a tabela `SENO` com interpolação linear e cai em `Math.sin(Math.toRadians(...))` fora de 45°–70°. As distâncias mudaram: **pontos da `ValuesToShoot` medidos antes podem precisar de nova calibração**.
+- `Mech/LimeLight.java` → `getSin()`: buscava chave `double` num mapa de `Integer` (sempre `null` → `NullPointerException`). Corrigido.
+- `AutoPath.HoldPosition` (só na `Regional`): refaz o path quando o robô sai > 3 pol em **qualquer** eixo (antes `&&`, só nos dois), cria o path uma vez e o path de retorno tem heading `.constant(...)` (antes lançava `path has no heading`).
+
 #### Pontos de atenção identificados no código
 
 Estes pontos foram encontrados na leitura do código e **ainda não foram corrigidos**:
 
-- `Mech/LimeLight.java` → `getDistance()`: passa o ângulo em **graus** para `Math.sin`, que espera radianos. A distância sai errada.
-- `Mech/LimeLight.java` → `getSin()` (não usado): lê o mapa com chave `double` num mapa de `Integer` e faz unboxing de `null`, o que lança `NullPointerException`.
 - `Mech/Feeder.java`: `getHoodPos()` depende do encoder do hood ligado na porta do feeder (`TODO` no código).
 - `Mech/Servos/HoodServo.java`: `MaxServoTICKS` ainda não foi medido (`TODO`).
 - `Mech/ValuesToShoot.java`: a maioria das entradas ainda é `NaN` (não medida).

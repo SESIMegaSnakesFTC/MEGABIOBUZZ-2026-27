@@ -66,6 +66,7 @@ public class TeleoperadoLed extends LinearOpMode {
         fieldCentric.resetHeading();
 
         indicator.init(hardwareMap);
+        indicator.setColorBasedInNumber(0);
         sensor.init(hardwareMap, 0.5f);
 
 

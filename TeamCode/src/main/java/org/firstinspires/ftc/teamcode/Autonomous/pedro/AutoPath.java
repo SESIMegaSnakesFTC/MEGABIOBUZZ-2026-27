@@ -152,8 +152,9 @@ public class AutoPath {
     public void HoldPosition(Follower follower, Pose currentPos, double Xtarget, double Ytarget, double X, double Y){
 
 
-        if (Math.abs(Xtarget-X) > 3 && Math.abs(Ytarget-Y) > 3){
-            follower.follow(pathzika(currentPos, follower));
+        // longe em QUALQUER eixo: volta por path (só cria um, não recria todo loop)
+        if (Math.abs(Xtarget-X) > 3 || Math.abs(Ytarget-Y) > 3){
+            if (!follower.following()) follower.follow(pathzika(currentPos, follower));
         }
         else {
             follower.hold(currentPos);
@@ -162,7 +163,8 @@ public class AutoPath {
     }
 
     private Path pathzika(Pose pose, Follower follower){
-        return line(follower.pose(), pose);
+        // heading constante = o da pose travada; sem isso o Pedro lança "path has no heading"
+        return line(follower.pose(), pose).constant(pose);
     }
 
     private static double dist(Pose a, Pose b) {
