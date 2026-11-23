@@ -56,7 +56,7 @@ public class BLUEFlower extends OpMode {
     private float TIME_GATE = 1f;
 
     private Follower follower;
-    private final BLUEFlowerPath paths = new BLUEFlowerPath();
+    //private final BLUEFlowerPath paths = new BLUEFlowerPath();
 
     //MECH
     private RampServo ramp  = new RampServo();
@@ -108,7 +108,7 @@ public class BLUEFlower extends OpMode {
         Scheduler.reset();
 
         follower = Constants.create(hardwareMap);
-        follower.setPose(paths.start);
+        //follower.setPose(paths.start);
         follower.update();
 
         vs = hardwareMap.voltageSensor.iterator().hasNext()
@@ -150,7 +150,7 @@ public class BLUEFlower extends OpMode {
 
         // Sequência: atira (path1 inteiro, fim do path3 e fim do path4)
         // Shooter só fica ligado nos tiros e desliga no fim de cada um
-        schedule(sequential(
+        /*schedule(sequential(
                 instant(() -> { Shooting = true; Feeding = true; }),
                 follow(follower, paths.path1()),
                 fimTiro(),
@@ -168,7 +168,7 @@ public class BLUEFlower extends OpMode {
                 atirar(1000),
                 follow(follower, paths.path5()),
                 instant(() -> { Tracking = false; finalPose = follower.pose(); })
-        ));
+        ));*/
     }
 
     @Override
