@@ -13,6 +13,8 @@ import org.firstinspires.ftc.teamcode.Mech.Color_Sensor;
 import org.firstinspires.ftc.teamcode.Mech.Feeder;
 import org.firstinspires.ftc.teamcode.Mech.FieldCentric;
 import org.firstinspires.ftc.teamcode.Mech.Led.RGB_Indicator;
+import org.firstinspires.ftc.teamcode.Mech.Servos.LeftRampServo;
+import org.firstinspires.ftc.teamcode.Mech.Servos.RightRampServo;
 import org.firstinspires.ftc.teamcode.Mech.TurnOn_TurnOff;
 import org.firstinspires.ftc.teamcode.Mech.Turret.HiveTracking;
 
@@ -23,6 +25,8 @@ public class BlueTele extends LinearOpMode {
     private static final HiveTracking.StartPose START = HiveTracking.StartPose.BLUE_UP;
     Follower follower;
     Feeder   feeder = new Feeder();
+    RightRampServo Rightramp = new RightRampServo();
+    LeftRampServo Leftramp   = new LeftRampServo();
     AutoPath autoPath;
     TurnOn_TurnOff button = new TurnOn_TurnOff();
     RGB_Indicator indicator = new RGB_Indicator();
@@ -31,6 +35,7 @@ public class BlueTele extends LinearOpMode {
 
     //BUTTON'S
 
+    boolean lastRB = false, FLOWER_DOWN = false;
     boolean lastReset = false;
     boolean lastHold = false, Hold = true;
     boolean lastMode = false, Mode = false;
@@ -56,6 +61,8 @@ public class BlueTele extends LinearOpMode {
         //INIT
 
         feeder.init(hardwareMap);
+        Leftramp.init(hardwareMap);
+        Rightramp.init(hardwareMap);
         follower = Constants.create(hardwareMap);
         follower.setPose(START.toPose());
         follower.manual(0,0,0);
@@ -81,6 +88,9 @@ public class BlueTele extends LinearOpMode {
 
 
             // TURN ON/OFF
+
+            FLOWER_DOWN = button.IsActivate(gamepad1.left_bumper, lastRB, FLOWER_DOWN);
+            lastRB = gamepad1.left_bumper;
 
             Mode  = button.IsActivate(gamepad1.b, lastMode, Mode);
             lastMode = gamepad1.b;
@@ -138,7 +148,8 @@ public class BlueTele extends LinearOpMode {
 
             indicator.setColorBasedInNumber(Quant);
 
-
+            //FLOWER SERVO
+            Flower();
 
 
 
@@ -152,6 +163,10 @@ public class BlueTele extends LinearOpMode {
 
 
         }
+    }
+    private void Flower(){
+        Rightramp.Position(FLOWER_DOWN);
+        Leftramp.Position(FLOWER_DOWN);
     }
 
 }
