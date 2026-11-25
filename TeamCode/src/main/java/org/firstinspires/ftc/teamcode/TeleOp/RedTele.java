@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Mech.Feeder;
 import org.firstinspires.ftc.teamcode.Mech.FieldCentric;
 import org.firstinspires.ftc.teamcode.Mech.Led.RGB_Indicator;
 import org.firstinspires.ftc.teamcode.Mech.Servos.LeftRampServo;
+import org.firstinspires.ftc.teamcode.Mech.Servos.RightRampServo;
 import org.firstinspires.ftc.teamcode.Mech.TurnOn_TurnOff;
 import org.firstinspires.ftc.teamcode.Mech.Turret.HiveTracking;
 
@@ -24,7 +25,8 @@ public class RedTele extends LinearOpMode {
     private static final HiveTracking.StartPose START = HiveTracking.StartPose.RED_DOWN;
     Follower follower;
     Feeder   feeder = new Feeder();
-    LeftRampServo ramp  = new LeftRampServo();
+    RightRampServo Rightramp  = new RightRampServo();
+    LeftRampServo  Leftramp   = new LeftRampServo();
     AutoPath autoPath;
     TurnOn_TurnOff button = new TurnOn_TurnOff();
     RGB_Indicator indicator = new RGB_Indicator();
@@ -59,7 +61,8 @@ public class RedTele extends LinearOpMode {
         //INIT
 
         feeder.init(hardwareMap);
-        ramp.init(hardwareMap);
+        Rightramp.init(hardwareMap);
+        Leftramp.init(hardwareMap);
         follower = Constants.create(hardwareMap);
         follower.setPose(START.toPose());
         follower.manual(0,0,0);
@@ -145,8 +148,7 @@ public class RedTele extends LinearOpMode {
 
 
             //FLOWER SERVO
-            ramp.Position(FLOWER_DOWN);
-
+            Flower();
 
 
 
@@ -162,6 +164,10 @@ public class RedTele extends LinearOpMode {
 
 
         }
+    }
+    private void Flower(){
+        Rightramp.Position(FLOWER_DOWN);
+        Leftramp.Position(FLOWER_DOWN);
     }
 
 }

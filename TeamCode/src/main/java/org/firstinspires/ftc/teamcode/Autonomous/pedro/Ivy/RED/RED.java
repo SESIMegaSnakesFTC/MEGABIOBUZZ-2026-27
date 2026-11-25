@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.Mech.LimeLight;
 import org.firstinspires.ftc.teamcode.Mech.MidTake;
 import org.firstinspires.ftc.teamcode.Mech.Servos.GateServo;
 import org.firstinspires.ftc.teamcode.Mech.Servos.HoodServo;
-import org.firstinspires.ftc.teamcode.Mech.Servos.LeftRampServo;
+import org.firstinspires.ftc.teamcode.Mech.Servos.RightRampServo;
 import org.firstinspires.ftc.teamcode.Mech.Shooter;
 import org.firstinspires.ftc.teamcode.Mech.Turret.HiveTracking;
 import org.firstinspires.ftc.teamcode.Mech.Turret.TurretController;
@@ -84,7 +84,7 @@ public class RED extends OpMode {
     private final REDPath paths = new REDPath();
 
     //MECH
-    private LeftRampServo ramp  = new LeftRampServo();
+    private RightRampServo ramp  = new RightRampServo();
     private Feeder feeder   = new Feeder();
     private MidTake midTake = new MidTake();
     private GateServo gate  = new GateServo();
