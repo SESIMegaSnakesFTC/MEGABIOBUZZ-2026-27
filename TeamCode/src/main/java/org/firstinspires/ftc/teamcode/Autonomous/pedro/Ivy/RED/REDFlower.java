@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.Mech.LimeLight;
 import org.firstinspires.ftc.teamcode.Mech.MidTake;
 import org.firstinspires.ftc.teamcode.Mech.Servos.GateServo;
 import org.firstinspires.ftc.teamcode.Mech.Servos.HoodServo;
-import org.firstinspires.ftc.teamcode.Mech.Servos.RampServo;
+import org.firstinspires.ftc.teamcode.Mech.Servos.LeftRampServo;
 import org.firstinspires.ftc.teamcode.Mech.Shooter;
 import org.firstinspires.ftc.teamcode.Mech.Turret.HiveTracking;
 import org.firstinspires.ftc.teamcode.Mech.Turret.TurretController;
@@ -40,6 +40,33 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+class REDFlowerPath {
+
+    private final PoseFactory poseFactory = PoseFactory.degrees();
+
+    private final Pose start = poseFactory.of(57, 137.5, 90);
+    public final Pose path1 = poseFactory.of(46.3117, 126.764, 90);
+    private final Pose path1Control1 = poseFactory.of(59.4095, 100.2904, 0);
+    private final Pose point2 = poseFactory.of(46.2068, 131.6075, 90);
+    private final Pose point3 = poseFactory.of(9.3136, 115.6329, 90);
+    private final Pose point3Control1 = poseFactory.of(48.6901, 106.8474, 0);
+    private final Pose point3Control2 = poseFactory.of(29.7837, 118.8102, 0);
+    private final Pose point3Control3 = poseFactory.of(8.3551, 114.771, 0);
+
+    public Path path1() {
+        return Paths.curve(start, path1Control1, path1).constant(path1);
+    }
+
+    public Path path2() {
+        return Paths.line(path1, point2).constant(point2);
+    }
+
+    public Path path3() {
+        return Paths.curve(point2, point3Control1, point3Control2, point3Control3, point3).constant(point3);
+    }
+}
+
+
 @Disabled
 @Autonomous(name = "AutoRED_Flower", group = "Autonomous")
 public class REDFlower extends OpMode {
@@ -48,18 +75,18 @@ public class REDFlower extends OpMode {
     public static Pose finalPose;
 
     //TURRET ADJUST -> Has to be equals to first path localization
-    private static final HiveTracking.StartPose START_POSE = HiveTracking.StartPose.RED_DOWN;
+    private static final HiveTracking.StartPose START_POSE = HiveTracking.StartPose.RED_UP;
 
     //SHOOTING
     private final boolean USING_LIMELIGHT = true;
     private boolean CORRECT_ODO = true;
-    private float TIME_GATE = 1f;
+    private final float TIME_GATE = 0.7f;
 
     private Follower follower;
-    //private final REDFlowerPath paths = new REDFlowerPath();
+    private final REDFlowerPath paths = new REDFlowerPath();
 
     //MECH
-    private RampServo ramp  = new RampServo();
+    private LeftRampServo ramp  = new LeftRampServo();
     private Feeder feeder   = new Feeder();
     private MidTake midTake = new MidTake();
     private GateServo gate  = new GateServo();
@@ -150,7 +177,7 @@ public class REDFlower extends OpMode {
 
         // Sequência: atira (path1 inteiro, fim do path3 e fim do path4)
         // Shooter só fica ligado nos tiros e desliga no fim de cada um
-        /*schedule(sequential(
+        schedule(sequential(
                 instant(() -> { Shooting = true; Feeding = true; }),
                 follow(follower, paths.path1()),
                 fimTiro(),
@@ -161,14 +188,9 @@ public class REDFlower extends OpMode {
                 instant(() -> Shooting = true),            // acelera durante o path3
                 follow(follower, paths.path3()),
                 corrigirPose(),
-                atirar(2500),
-                instant(() -> { Shooting = true; rampOpen = false; }),   // acelera e fecha a rampa no path4
-                follow(follower, paths.path4()),
-                corrigirPose(),
-                atirar(1000),
-                follow(follower, paths.path5()),
-                instant(() -> { Tracking = false; finalPose = follower.pose(); })
-        ));*/
+                atirar(2500)
+
+        ));
     }
 
     @Override

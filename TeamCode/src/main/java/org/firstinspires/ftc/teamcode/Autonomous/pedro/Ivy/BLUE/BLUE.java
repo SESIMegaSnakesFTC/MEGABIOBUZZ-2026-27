@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.Mech.LimeLight;
 import org.firstinspires.ftc.teamcode.Mech.MidTake;
 import org.firstinspires.ftc.teamcode.Mech.Servos.GateServo;
 import org.firstinspires.ftc.teamcode.Mech.Servos.HoodServo;
-import org.firstinspires.ftc.teamcode.Mech.Servos.RampServo;
+import org.firstinspires.ftc.teamcode.Mech.Servos.LeftRampServo;
 import org.firstinspires.ftc.teamcode.Mech.Shooter;
 import org.firstinspires.ftc.teamcode.Mech.Turret.HiveTracking;
 import org.firstinspires.ftc.teamcode.Mech.Turret.TurretController;
@@ -40,26 +40,69 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+
+
+class BLUEPath {
+
+    private final PoseFactory poseFactory = PoseFactory.degrees().mirrorX(72).mirrorY(72);
+    public final Pose start = poseFactory.of(62, 6.5, 180);
+    private final Pose path1 = poseFactory.of(8.7869, 8.4, 180);
+    private final Pose point2Start = poseFactory.of(8.7869, 8.4, 180);
+    private final Pose point2 = poseFactory.of(46.8489, 131.2693, 180);
+    private final Pose point2Control1 = poseFactory.of(43.7492, 38.6442, 0);
+    private final Pose point2Control2 = poseFactory.of(34.4559, 0, 0);
+    private final Pose point2Control3 = poseFactory.of(13.7455, 141.5, 0);
+    private final Pose point2Control4 = poseFactory.of(35.9201, 79.5071, 0);
+    private final Pose point3Start = poseFactory.of(46.8489, 131.2693, 180);
+    private final Pose point3 = poseFactory.of(11.7222, 46.0356, 180);
+    private final Pose point3Control1 = poseFactory.of(22.373, 98.0227, 0);
+    private final Pose point3Control2 = poseFactory.of(36.8535, 43.0201, 0);
+    private final Pose point4 = poseFactory.of(58.3381, 8.2435, 90);
+    private final Pose point5 = poseFactory.of(9.9504, 97.396, 0);
+    private final Pose point5Control1 = poseFactory.of(10.6339, 35.9629, 0);
+    private final Pose point5Control2 = poseFactory.of(24.7554, 83.2697, 0);
+
+    public Path path1() {
+        return Paths.line(start, path1).constant(path1);
+    }
+
+    public Path path2() {
+        return Paths.curve(point2Start, point2Control1, point2Control2, point2Control3, point2Control4, point2).linear(point2Start, point2);
+    }
+
+    public Path path3() {
+        return Paths.curve(point3Start, point3Control1, point3Control2, point3).linear(point3Start, point3);
+    }
+
+    public Path path4() {
+        return Paths.line(point3, point4).constant(point4);
+    }
+
+    public Path path5() {
+        return Paths.curve(point4, point5Control1, point5Control2, point5).constant(point5);
+    }
+
+}
 @Disabled
 @Autonomous(name = "AutoBLUE", group = "Autonomous")
 public class BLUE extends OpMode {
 
 
-    public static Pose finalPose;
+    public Pose finalPose;
 
     //TURRET ADJUST -> Has to be equals to first path localization
     private static final HiveTracking.StartPose START_POSE = HiveTracking.StartPose.BLUE_DOWN;
 
     //SHOOTING
-    private final boolean USING_LIMELIGHT = true;
+    private static final boolean USING_LIMELIGHT = true;
     private boolean CORRECT_ODO = true;
-    private float TIME_GATE = 1f;
+    private final float TIME_GATE = 0.7f;
 
     private Follower follower;
-    //private final BLUEPath paths = new BLUEPath();
+    private final BLUEPath paths = new BLUEPath();
 
     //MECH
-    private RampServo ramp  = new RampServo();
+    private LeftRampServo ramp  = new LeftRampServo();
     private Feeder feeder   = new Feeder();
     private MidTake midTake = new MidTake();
     private GateServo gate  = new GateServo();
@@ -150,7 +193,7 @@ public class BLUE extends OpMode {
 
         // Sequência: atira (path1 inteiro, fim do path3 e fim do path4)
         // Shooter só fica ligado nos tiros e desliga no fim de cada um
-        /*schedule(sequential(
+        schedule(sequential(
                 instant(() -> { Shooting = true; Feeding = true; }),
                 follow(follower, paths.path1()),
                 fimTiro(),
@@ -168,7 +211,7 @@ public class BLUE extends OpMode {
                 atirar(1000),
                 follow(follower, paths.path5()),
                 instant(() -> { Tracking = false; finalPose = follower.pose(); })
-        ));*/
+        ));
     }
 
     @Override
@@ -291,4 +334,5 @@ public class BLUE extends OpMode {
         // Contador de bolas -> cor do indicador
         indicator.setColorBasedInNumber(sensor.CountBall(false, 35, 75, 2));
     }
-}
+    }
+

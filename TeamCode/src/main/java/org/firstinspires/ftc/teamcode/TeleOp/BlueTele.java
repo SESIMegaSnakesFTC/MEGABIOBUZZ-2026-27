@@ -16,11 +16,11 @@ import org.firstinspires.ftc.teamcode.Mech.Led.RGB_Indicator;
 import org.firstinspires.ftc.teamcode.Mech.TurnOn_TurnOff;
 import org.firstinspires.ftc.teamcode.Mech.Turret.HiveTracking;
 
-@TeleOp(name = "LED - RedTele", group = "TeleOp")
-public class TeleoperadoLed extends LinearOpMode {
+@TeleOp(name = "BlueTele", group = "TeleOp")
+public class BlueTele extends LinearOpMode {
 
     //INSTANCE
-    private static final HiveTracking.StartPose START = HiveTracking.StartPose.RED_DOWN;
+    private static final HiveTracking.StartPose START = HiveTracking.StartPose.BLUE_UP;
     Follower follower;
     Feeder   feeder = new Feeder();
     AutoPath autoPath;
@@ -32,7 +32,7 @@ public class TeleoperadoLed extends LinearOpMode {
     //BUTTON'S
 
     boolean lastReset = false;
-    boolean lastHold = false, Hold = false;
+    boolean lastHold = false, Hold = true;
     boolean lastMode = false, Mode = false;
 
     //====================================
@@ -105,18 +105,24 @@ public class TeleoperadoLed extends LinearOpMode {
 
 
 
-            if (Hold && holdPos != null) autoPath.HoldPosition(follower, holdPos, holdX, holdY, pose.x(), pose.y());
 
-            else if (moved){
+
+            if (moved){
                 DrivePowers p = Mode ? fieldCentric.powers(x, y, rx) : new DrivePowers(y, x, rx);
                 follower.manual(p);
             }
-            else if (!PosPressed && !follower.following()) {
-                follower.manual(0,0,0);
-            }
+            else if (Hold && holdPos != null) autoPath.HoldPosition(follower, holdPos, holdX, holdY, pose.x(), pose.y());
 
+            else if (!PosPressed && !follower.following()) follower.manual(0,0,0);
+
+            else autoPath.GoToPosition(false, gamepad1.dpad_right,
+                        gamepad1.dpad_down, gamepad1.dpad_up,
+                        false, false, false, false );
 
             if (reset) fieldCentric.resetHeading();
+
+
+
 
             follower.update();
 
@@ -131,6 +137,7 @@ public class TeleoperadoLed extends LinearOpMode {
             //COLOR BASED IN BALL's COUNTER
 
             indicator.setColorBasedInNumber(Quant);
+
 
 
 
